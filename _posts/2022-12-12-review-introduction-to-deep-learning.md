@@ -23,7 +23,7 @@ Unsupervised learning.\
 First applications:
 - NetTalk: A text-to-speech network that learns to pronounce English text. 
     - Input: Phrase and phonetic representation.
-    - 7$\times$ 29 inputs $\rightarrow$ 80 hidden units $\rightarrow$ 26 output units
+    - 7$$\times$$ 29 inputs $$\rightarrow$$ 80 hidden units $$\rightarrow$$ 26 output units
 - ALVINN: Drives a car.
 - FALCON: A fraud detection system.
 
@@ -43,42 +43,47 @@ Enabling factors:
 
 ### Perceptron
 #### Perceptron learning algorithm
-> Initial $w$ randomly\
-> **while** ($\exists$ misclassified training examples)
-> > Select a misclassified example $(x, d)$\
-> > $w_{new} = w_{old} + \eta dx$
+> Initial $$w$$ randomly\
+> **while** ( $$\exists$$ misclassified training examples) 
+> > Select a misclassified example $$(x, d)$$\
+> > $$w_{new} = w_{old} + \eta dx$$
 
-$\eta$: The learning rate.
+$$\eta$$: The learning rate.
 
 #### Cover's Theorem
-What is the chance that a randomly labeled set of $N$ points in $d$-dimensional space, is linearly separable?
+What is the chance that a randomly labeled set of $$N$$ points in $$d$$-dimensional space, is linearly separable?
+
 $$
+\begin{align*}
 F(N, d) = 
 \begin{cases}
 1 &N \leq d + 1;\\
 \frac{1}{2^{N-1}}\sum_{i=0}^d \binom{N-1}{i} & N > d+1.
 \end{cases}
+\end{align*}
 $$
+
 In highly dimensional spaces:
-1. #points in $d$-dimensional space $<$ 2$d$ $\rightarrow$ almost always linearly separable
-2. #points in $d$-dimensional space $>$ 2$d$ $\rightarrow$ almost always not linearly separable
+1. #points in $$d$$-dimensional space $$<$$ 2$$d$$ $$\rightarrow$$ almost always linearly separable
+2. #points in $$d$$-dimensional space $$>$$ 2$$d$$ $$\rightarrow$$ almost always not linearly separable
 
 #### Gradient Descent Algorithm
-Goal: Find a minimum of a function $f$.\
+Goal: Find a minimum of a function $$f$$.\
 Steps:
-1. Start with an arbitrary point $x$.
-2. Find a direction in which $f$ is decreasing most rapidly: $-\nabla x$.
-3. Make a small step in this direction: $x = x - \eta\nabla x$.
+1. Start with an arbitrary point $$x$$.
+2. Find a direction in which $$f$$ is decreasing most rapidly: $$-\nabla x$$.
+3. Make a small step in this direction: $$x = x - \eta\nabla x$$.
 4. Repeat the whole process.
 
 #### Perceptron for Multi-class Problems
 **Linear Separability for Multi-class Problems**\
-There exist $c$ linear discriminant functions $y_1(x), \dots, y_c(x)$ such that each $x$ is assigned to class $C_k$ if and only if $y_k(x) > y_j$ for all $j\neq k$.
+There exist $$c$$ linear discriminant functions $$y_1(x), \dots, y_c(x)$$ such that each $$x$$ is assigned to class $$C_k$$ if and only if $$y_k(x) > y_j$$ for all $$j\neq k$$.
 
 **Generalized Perceptron Convergence Theorem**\
-If the $c$ sets of points are linearly separable then the generalized perceptron algorithm terminates after a finite number of iterations, separating all classes.
+If the $$c$$ sets of points are linearly separable then the generalized perceptron algorithm terminates after a finite number of iterations, separating all classes.
 
 **Perceptron VS SVM**
+
 ||Perceptron|SVM|
 |---|---|---|
 |Inspiration|Simulating biological networks|Statistical learning theory|
@@ -97,7 +102,7 @@ The repeated application of two passes:
 
 Highlights:
 - No guarantees of convergence: Learning rate is too big or too small.
-- In case of convergence: Local (or global) minimum. $\rightarrow$ Try several starting configurations and learning rates.
+- In case of convergence: Local (or global) minimum. $$\rightarrow$$ Try several starting configurations and learning rates.
 
 **Difference between gradient descent and backpropagation**\
 “Gradient descent” is a general technique for finding (local minima) of a function which involves calculationg gradients (or partial derivatives) of the function, while “backpropagation” is a very efficient method for calculating gradients of “well-structured” functions such as multi-layered networks.
@@ -114,6 +119,7 @@ Highlights:
   Early stopping: Stop trainig as soon at the error on the validation set increases.
 
 #### Different Tasks
+
 |Task|Activation Function|Error Function|
 |---|---|---|
 |Regression|Linear|Sum square error|
@@ -121,6 +127,7 @@ Highlights:
 |Multi-class classification|Softmax|Cross entropy|
 
 #### Activation Functions
+
 |Function|Comment|
 |---|---|
 |Logistic|Vanishing gradients|
@@ -133,7 +140,7 @@ Highlights:
 
 #### Weights Initialization
 **Traditional strategies**\
-Standard Gaussian ($\mu$ = 0, $\sigma$ = 1); Uniform [-1, 1]\
+Standard Gaussian ($$\mu$$ = 0, $$\sigma$$ = 1); Uniform $$[-1, 1]$$\
 Drawback:\
 Variance of outputs (of a single node / layer) increases, so the deeper we go the bigger the variance.
 
@@ -142,18 +149,20 @@ If all weights are initialized to the same value then all the weights (in each l
 
 **Solutions**\
 For each layer calculate:\
-$\text{fan}_{\text{in}}$: number of connections "to" the given layer\
-$\text{fan}_{\text{out}}$: number of connections "from" the given layer\
-$\text{fan}_{\text{avg}} = (\text{fan}_{\text{in}} + \text{fan}_{\text{out}}) / 2$\
-Then generate weights (for each layer) from a normal distribution with $\mu$ = 0 and:\
-(Glorot) For logistic, Tanh, softmax: $\sigma^2 = 1 / \text{fan}_{\text{avg}}$\
-(He) For ReLU and its variants: $\sigma^2 = 2 / \text{fan}_{\text{in}}$\
-(LeCun) For SELU: $\sigma^2 = 1 / \text{fan}_{\text{in}}$
+$$\text{fan}_{\text{in}}$$: number of connections "to" the given layer\
+$$\text{fan}_{\text{out}}$$: number of connections "from" the given layer\
+$$\text{fan}_{\text{avg}} = (\text{fan}_{\text{in}} + \text{fan}_{\text{out}}) / 2$$
+
+Then generate weights (for each layer) from a normal distribution with $$\mu$$ = 0 and:\
+(Glorot) For logistic, Tanh, softmax: $$\sigma^2 = 1 / \text{fan}_{\text{avg}}$$\
+(He) For ReLU and its variants: $$\sigma^2 = 2 / \text{fan}_{\text{in}}$$\
+(LeCun) For SELU: $$\sigma^2 = 1 / \text{fan}_{\text{in}}$$
 
 #### Batch Normalization
 Key idea: Normalize, scale, and shift each batch.\
-$\gamma$, $\beta$ are tuneable parameters and can be optimized with SGD.\
-$\mu$, $\sigma$ are computed parameters.
+$$\gamma$$, $$\beta$$ are tuneable parameters and can be optimized with SGD.\
+$$\mu$$, $$\sigma$$ are computed parameters.
+
 $$
 \begin{align*}
 \mu_{\mathcal{B}} &= \frac{1}{m}\sum_{i=1}^{m} x_i\\
@@ -162,12 +171,14 @@ $$
 y_i &= \gamma\hat{x}_i + \beta \equiv \text{BN}_{\gamma, \beta}(x_i)
 \end{align*}
 $$
-Apply the chain rule to the BN transformation to propagate gradients of the loss function.\
+
+Apply the chain rule to the BN transformation to propagate gradients of the loss function.
+
 **Test mode**\
-During training, every batch is normalized separately but $\beta$ and $\gamma$ are tuned to be optimal for all batches.\
-We need to estimate $\mu$ and $\sigma$ over the training set to normalize incoming data in the test mode. How?
+During training, every batch is normalized separately but $$\beta$$ and $$\gamma$$ are tuned to be optimal for all batches.\
+We need to estimate $$\mu$$ and $$\sigma$$ over the training set to normalize incoming data in the test mode. How?
 1. Treat the whole training set as one big batch (very expensive).
-2. Apply the moving average technique to estimate $\mu$ and $\sigma$ process batch after batch.
+2. Apply the moving average technique to estimate $$\mu$$ and $$\sigma$$ process batch after batch.
 > **Exponential moving average**\
 > For all batches:
 > $$
@@ -178,19 +189,23 @@ We need to estimate $\mu$ and $\sigma$ over the training set to normalize incomi
 > $$
 
 #### Gradient Clipping
-Gradient clipping is a technique that tackles exploding gradients. The idea of gradient clipping is very simple: If the gradients gets too large, we rescale it to keep it small. More precisely, if $\Vert g \Vert > c$, then
-$$
-g = c\cdot \frac{g}{\Vert g\Vert}
-$$
-where $c$ is a hyperparameter, $g$ is the gradient, and $\Vert g\Vert$ is the norm of $g$. Since $g / \Vert g\Vert$ is a unit vector, after rescaling the new $g$ will have norm $c$. Note that if $\Vert g\Vert < c$, then we don’t need to do anything.
+Gradient clipping is a technique that tackles exploding gradients. The idea of gradient clipping is very simple: If the gradients gets too large, we rescale it to keep it small. More precisely, if $$\Vert g \Vert > c$$, then
 
-Gradient clipping ensures the gradient vector $g$ has norm at most $c$. This helps gradient descent to have a reasonable behaviour even if the loss landscape of the model is irregular.
+$$
+\begin{align*}
+g = c\cdot \frac{g}{\Vert g\Vert}
+\end{align*}
+$$
+
+where $$c$$ is a hyperparameter, $$g$$ is the gradient, and $$\Vert g\Vert$$ is the norm of $$g$$. Since $$g / \Vert g\Vert$$ is a unit vector, after rescaling the new $$g$$ will have norm $$c$$. Note that if $$\Vert g\Vert < c$$, then we don’t need to do anything.
+
+Gradient clipping ensures the gradient vector $$g$$ has norm at most $$c$$. This helps gradient descent to have a reasonable behaviour even if the loss landscape of the model is irregular.
 
 #### Regularization Methods
 - L1 or L2 regularization: Penalty on too big values of weights.
 - Alternative loss functions: MSE, cross entropy, LogLoss, HuberLoss, etc.
 - Batch normalization 
-- Node dropout: At every training step (processing a batch), each node has a chance $0 < p < 1$ to be disabled (not from the output layer). All nodes are active when testing (a form of bagging a collection of networks).
+- Node dropout: At every training step (processing a batch), each node has a chance $$0 < p < 1$$ to be disabled (not from the output layer). All nodes are active when testing (a form of bagging a collection of networks).
 - Monte Carlo dropout: Normal dropout + Aggregate predictions over random sub-networks when testing.
 
 #### Transfer Learning
@@ -206,25 +221,25 @@ Methods:
 
 #### Variants of the Gradient Descent Algorithm
 **SGD with momentum**
-1. Require: Initial parameter $\theta$, initial velocity $v$, learning rate $\epsilon$, momentum parameter $\alpha$.
-2. Sample a minibatch of $m$ examples from the training set.
-3. Compute gradient estimate $g = \frac{1}{m}\nabla_{\theta}\sum L$.
-4. Compute velocity update $v = \alpha v - \epsilon g$.
-5. Apply update $\theta = \theta + v$.
+1. Require: Initial parameter $$\theta$$, initial velocity $$v$$, learning rate $$\epsilon$$, momentum parameter $$\alpha$$.
+2. Sample a minibatch of $$m$$ examples from the training set.
+3. Compute gradient estimate $$g = \frac{1}{m}\nabla_{\theta}\sum L$$.
+4. Compute velocity update $$v = \alpha v - \epsilon g$$.
+5. Apply update $$\theta = \theta + v$$.
 
 **SGD with Nesterov accelerated gradient**
-1. Require: Initial parameter $\theta$, initial velocity $v$, learning rate $\epsilon$, momentum parameter $\alpha$.
-2. Sample a minibatch of $m$ examples from the training set.
-3. Apply interim update $\tilde{\theta} = \theta + \alpha v$
-4. Compute gradient estimate **at interim point** $g = \frac{1}{m}\nabla_{\tilde{\theta}}\sum L$.
-5. Compute velocity update $v = \alpha v - \epsilon g$.
-6. Apply update $\theta = \theta + v$.
+1. Require: Initial parameter $$\theta$$, initial velocity $$v$$, learning rate $$\epsilon$$, momentum parameter $$\alpha$$.
+2. Sample a minibatch of $$m$$ examples from the training set.
+3. Apply interim update $$\tilde{\theta} = \theta + \alpha v$$
+4. Compute gradient estimate **at interim point** $$g = \frac{1}{m}\nabla_{\tilde{\theta}}\sum L$$.
+5. Compute velocity update $$v = \alpha v - \epsilon g$$.
+6. Apply update $$\theta = \theta + v$$.
 
 ## Convolutional Networks
 ### Concepts
 **Randomly permuting all pixels**\
 The accuracy achieved by a single layer perceptron (or MLP) on the random permuted data is the same as on the original data.\
-Error function: $n!$ local minima.
+Error function: $$n!$$ local minima.
 
 **Filter**: A feature detector. Return high values when the corresponding patch is similar to the filter matrix.\
 **Convolution**: An operation that takes as input a tensor and applies a "local convolution operation" (kernel, filter, convolutional matrix, convolutional tensor) to "all fragments" of the input.\
@@ -236,32 +251,32 @@ Error function: $n!$ local minima.
 
 ### LeNet5
 **C1**\
-Convolutional layer with 6 feature maps of size 28 $\times$ 28. Each unit of C1 has a 5 $\times$ 5 receptive field in the input layer.\
-Shared weights: $(5 \times 5 + 1) \times 6 = 156$ parameters to learn.\
-Connections: $28 \times 28 \times (5 \times 5 + 1)\times 6 = 122304$.\
-If it was fully connected we had: $(32\times 32 + 1) \times (28 \times 28)\times 6 = 4821600$ parameters.
+Convolutional layer with 6 feature maps of size 28 $$\times$$ 28. Each unit of C1 has a 5 $$\times$$ 5 receptive field in the input layer.\
+Shared weights: $$(5 \times 5 + 1) \times 6 = 156$$ parameters to learn.\
+Connections: $$28 \times 28 \times (5 \times 5 + 1)\times 6 = 122304$$.\
+If it was fully connected we had: $$(32\times 32 + 1) \times (28 \times 28)\times 6 = 4821600$$ parameters.
 
 **S2**\
-Subsampling layer with 6 feature maps of size 14 $\times$ 14. 2 $\times$ 2 nonoverlapping receptive fields in C1.\
-Parameters: $6\times 2=12$.\
-Connections: $14\times 14 \times (2 \times 2 + 1)\times 6 = 5880$.
+Subsampling layer with 6 feature maps of size 14 $$\times$$ 14. 2 $$\times$$ 2 nonoverlapping receptive fields in C1.\
+Parameters: $$6\times 2=12$$.\
+Connections: $$14\times 14 \times (2 \times 2 + 1)\times 6 = 5880$$.
 
 **C3**\
-C3 consists of: 6 filters of ddepth 3, 9 filters of depth 4, 1 filter of depth 6. 5 $\times$ 5 receptive fields at identical locations in S2.\
-Parameters: $6\times (1 + 5\times 5\times 3) + 9 \times (1 + 5\times 5\times 4) + 1 \times (1 + 5\times 5 \times 6) = 1516$.
+C3 consists of: 6 filters of ddepth 3, 9 filters of depth 4, 1 filter of depth 6. 5 $$\times$$ 5 receptive fields at identical locations in S2.\
+Parameters: $$6\times (1 + 5\times 5\times 3) + 9 \times (1 + 5\times 5\times 4) + 1 \times (1 + 5\times 5 \times 6) = 1516$$.
 
 **S4**\
-Subsampling layer with 16 feature maps of size 5 $\times$ 5. Each unit in S4 is connected to the corresponding 2 $\times$ 2 receptive field at C3.\
-Parameters: $16 \times 2 = 32$.\
-Connections: $5\times 5 \times(2\times 2 + 1)\times 16 = 2000$.
+Subsampling layer with 16 feature maps of size 5 $$\times$$ 5. Each unit in S4 is connected to the corresponding 2 $$\times$$ 2 receptive field at C3.\
+Parameters: $$16 \times 2 = 32$$.\
+Connections: $$5\times 5 \times(2\times 2 + 1)\times 16 = 2000$$.
 
 **C5**\
-Convolutional layer with 120 feature maps of size 1 $\times$ 1. Each unit in C5 is connected to all 16 5 $\times$ 5 receptive fields in S4.\
-Parameters and connections: $120\times (16 \times 5\times 5 + 1) = 48120$.
+Convolutional layer with 120 feature maps of size 1 $$\times$$ 1. Each unit in C5 is connected to all 16 5 $$\times$$ 5 receptive fields in S4.\
+Parameters and connections: $$120\times (16 \times 5\times 5 + 1) = 48120$$.
 
 **F6**\
 84 fully connected units.\
-Parameters and connections: $84\times (120 + 1) = 10164$.
+Parameters and connections: $$84\times (120 + 1) = 10164$$.
 
 ## Autoencoders and GANs
 ### Autoencoders
@@ -273,22 +288,30 @@ Application: Data compression, dimensionality reduction, visualization, anomaly 
 **Variational autoencoders**: Extend the bottleneck layer to include the mean value and the standard variance.
 
 ### GANs
+
 $$
+\begin{align*}
 \min_G \max_D V(D, G)
+\end{align*}
 $$
+
 It is formulated as a minimax game, where:
-- The Discriminator is trying to maximize its reward $V(D, G)$.
+- The Discriminator is trying to maximize its reward $$V(D, G)$$.
 - The Generator is trying to minimize Discriminator's reward (or maximize its loss).
+
 $$
+\begin{align*}
 V(D, G) = E_{x\sim p(x)}[\log D(x)] + E_{z\sim q(z)}[\log(1 - D(G(z)))]
+\end{align*}
 $$
+
 The Nash equilibrium of this particular game is achieved at:
-- $P_{data}(x) = P_{gen}(x), \forall x$.
-- $D(x) = \frac{1}{2}, \forall x$.
+- $$P_{data}(x) = P_{gen}(x), \forall x$$.
+- $$D(x) = \frac{1}{2}, \forall x$$.
 
 #### Problems with GANs
 Probability distribution is implicit:
-- Not straightforward to compute $P(x)$.
+- Not straightforward to compute $$P(x)$$.
 - Thus Vanilla GANs are only good for Sampling / Generation.
 
 Training is hard:
