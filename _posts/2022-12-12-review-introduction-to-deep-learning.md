@@ -323,8 +323,22 @@ Some solutions:
 - Supervision with labels: Label information of the real data might help. Empirically generates much better samples.
 
 ## Recurrent Networks
+### Backpropagation Through Time
+- The output value does depend on the state of the hidden layer, which depends on all previous states of the hidden layer (and thus, all previous inputs)
+- Recurrent net can be seen as a (very deep) feedforward net with shared weights
+- Unfold the network over time and use SGD to find the minimum.
 
-Backpropagation through time, LSTM, problems with training RNNs, example applications, word embeddings, application in NLP
+Problems:
+- The longer the sequence the deeper error propagation.
+- Vanishing / exploding gradients.
+
+Therefore, only short (5 - 10) sequences can be modeled this way.
+
+### Long-short Memory Networks (LSTM)
+Key ideas:
+- Extend the "short memory" hidden layer of a RNN by a mechanism that allows to "learn" which information should be preserved for a longer period and how should it be combined with the current data.
+- This "meta-information" should be kept in a "cell state" vector.
+- The hidden layer is replaced by a specially designed network.
 
 ## Attention Mechanism and Transformers
 
