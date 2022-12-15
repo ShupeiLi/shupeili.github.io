@@ -340,9 +340,91 @@ Key ideas:
 - This "meta-information" should be kept in a "cell state" vector.
 - The hidden layer is replaced by a specially designed network.
 
-## Attention Mechanism and Transformers
+## Transformers
+### Motivation
+#### Models for Sequential Data
+- Can handle sequences of different lengths as input / output without adjusting parameters.
+- These models are versatile - can handle seqence-to-label, label-to-sequence, autoregressive and sequence-to-sequence training.
+- Can be causal or non-causal.
+
+#### Drawbacks of RNNs
+1. They are inherently sequential and cannot be easily parallelized - need to obtain the previous state of the network before moving on to the next (predict $$t_2$$ requires previous the prediction of $$t_1$$).
+2. Long-term dependencies are hard to model (both in terms of gradients and context awareness).
+3. Models do not scale well with GPUs - sequential processing.
+
+### Transformer Architecture
+**Encoder block**
+1. Positional encodings / embeddings.
+2. Self attention.
+3. Layer normalization: Scaling outputs to have mean of 0 and standard deviation of 1.
+4. Residual connections: Initial embedding added to the output of self-attention layer.
+5. Simple feed-forward network: Outputs of self attention are processed individually.
+
+**Pros**
+- Shallower than RNNs, easier to train.
+- Very efficient on GPUs.
+- Attention mechanism is key - global context awareness.
+
+**Cons**
+- Costly for very long sequences.
+
+### Self Attention Mechanism
+Queries (Q), keys (K), and values (V).
+
+$$
+\begin{align*}
+A(Q, K, V) = softmax\left(\frac{QK^T}{\sqrt{d}}\right)V
+\end{align*}
+$$
+
+**Multi-head self attention**
+- There are many important semantic relationships to attend to.
+- Having multiple heads solves this problem.
+- A matter of splitting tensors and increasing their rank.
+- The end result of all individual heads is concatenated.
 
 ## Reinforcement Learning
+### Alpha
+**AlphaGo**: Pre-trained on a huge database of historical games and then improved by playing against itself.\
+**AlphaGo Zero**: Trained solely on self-played games surpasses AlphaGo.\
+**Alpha Zero**: A generic architecture learning to play Go, Chess, Shogi.
+
+#### AlphaGo Zero: Key Ideas
+- Trained solely by self-play generated data (no human knowledge).
+- Use a single Convolutional ResNet with two "heads" that model policy and value estimates.
+    - Policy: Probability distribution over all possible next moves.
+    - Value: Probability of winning from the current position.
+- Extensive use of Monte Carlo Tree Search to get "better estimates".
+- A tournament to select the best network to generate fresh training data.
+
+### Concepts
+Reinforcement learning (RL) is a general-purpose framework for artificial intelligence.
+- RL is for an **agent** with capacity to act.
+- Each **action** influences the agent's future **state**.
+- Success is measured by a scalar **reward** signal.
+
+RL in a nutshell: Select **actions** to maximize future **reward**.
+
+**Policy**: $$\pi$$ is a behaviour function selecting actions given states $$a = \pi(s)$$.\
+**Value function**: $$Q^{\pi}(s, a)$$ is a expected total reward from state $$s$$ and action $$a$$ under policy $$\pi$$,
+
+$$
+\begin{align*}
+Q^{\pi}(s, a) = E\left[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \dots | s, a \right]
+\end{align*}
+$$
+
+#### Policy-based RL
+- Search directly for the optimal policy $$\pi^*$$.
+- This is the policy achieving maximum future reward.
+
+#### Value-based RL
+- Estimate the optimal value function $$Q^*(s, a)$$.
+- This is the maximum value achievable under any policy.
+
+#### Model-based RL
+- Build a transition model of the environment.
+- Plan (e.g. by look ahead) using model.
 
 ## References
 1. Slides of Introduction to Deep Learning course, 2022 Fall, Leiden Univeristy.
