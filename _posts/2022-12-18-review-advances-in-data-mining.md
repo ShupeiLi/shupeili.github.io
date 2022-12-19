@@ -68,6 +68,14 @@ $$
 - Recommend items that are closest to the user profile.
 - Closeness: Jaccard, cosine, Pearson, ...
 
+Jaccard formula:
+
+$$
+\begin{align*}
+\text{sim}(C_1, C_2) = \frac{|C_1\cap C_2|}{|C_1\cup C_2|}
+\end{align*}
+$$
+
 Cosine formula:
 
 $$
@@ -364,6 +372,478 @@ The more different elements we see in th stream, the more different hash-values 
 - Median of all estimates.
 - Divide the hash functions into small groups and take their average. Then take the median of the averages.
 
+## Similarity Search
+**Three steps for similarity testing (documents)**
+1. Shingling: Convert documents, emails, etc., to sets.
+2. Minhashing: Convert large sets to short signatures, while preserving similarity.
+3. Locality-sensitive hashing: Focus on pairs of signatures likely to be similar.
+
+### Shingling
+**Shingles**\
+A $$k$$-shingle for a document is a sequence of $$k$$ consecutive characters that appear in the document.
+
+**Example**\
+$$k = 2$$, $$\text{doc} = abcab$$.\
+Set of 2-shingles $$= \{ab, bc, ca\}$$.
+
+**Choosing the shingle size**\
+How large $$k$$ should be depends on how long typical documents are and how large the set of typical characters is. The important thing to remember is:
+- $$k$$ should be picked large enough that the probability of any given shingle appearing in any given document is low.
+
+**Hashing shingles**\
+Represent a document by the set of hash values of its $$k$$-shingles.
+
+### Minhashing
+**Signatures**\
+Hash each column $$C$$ to a small signature $$Sig(C)$$, such that:
+- $$Sig(C)$$ is small enough that we can fit a signature in main memory for each column.
+- $$Sim(C_1, C_2)\approx Sim(Sig(C_1), Sig(C_2))$$.
+
+**Minhashing**\
+Define the hash function $$h(C)=$$ the position of the first (in the permuted order) row in which column $$C$$ has 1. Use several independent hash functions to create a signature. Note that:
+
+$$
+\begin{align*}
+Pr(h(C_1) = h(C_2)) = Sim(C_1, C_2) = \frac{B}{B + L + R}
+\end{align*}
+$$
+
+The signature of length $$k$$ for a set $$C$$ is:
+
+$$
+\begin{align*}
+\{h_1(C), h_2(C), \dots, h_k(C)\}
+\end{align*}
+$$
+
+where $$h_1, h_2, \dots, h_k$$ are some randomly chosen permutations. The similarity of signatures is the fraction of the positions in which they agree.
+
+**Implementation**\
+Represent the document by row-column paires and sort once by row.\
+Time complexity: $$O(N)$$ ($$N=$$ total size of documents).
+
+> **for** each row $$r$$
+> > **for** each column $$c$$
+> > > **if** $$c$$ has 1 in row $$r$$
+> > > > **for** each hash function $$h_i$$ **do**
+> > > > > $$Sig(i, c) = \min(Sig(i, c), h_i(r))$$
+
+### Local-Sensitive Hashing
+**Key ideas**
+- Split columns of signature maytix $$M$$ into several blocks of the same size.
+- If two columns are very similar, then it is very likely that at least at one block they will be identical. Instead of comparing blocks, send them to buckets with the help of hash functions.
+- Candidate paires are those that hash at least once to the same bucket. Check if candidate paires are really similar.
+
+**More formally**
+- Divide matrix $$M$$ into $$b$$ bands of $$r$$ rows.
+- For each band, hash its portion of each column to a hash table with $$k$$ buckets ($$k$$ is a big number).
+- Candidate columns pairs are those that hash to the same bucket for at least one band.
+- Tune $$b$$ and $$r$$ to catch most similar pairs but few non-similar pairs.
+
+#### Analysis
+**False positives**: Dissimilar pairs that do hash to the same bucket.
+
+Suppose we use $$b$$ bands of $$r$$ rows each. And suppose that a particular pair of documents have Jaccard similarity $$s$$.
+- The probability that the signatures agree on one row is $$s$$.
+- The probability that they agree on all $$r$$ rows of a given band is $$s^r$$.
+- The probability that they do not agree on any of the rows of a band is $$1 - s^r$$.
+- The probability that for none of $$b$$ bands they agree in all rows of that band is $$(1 - s^r)^b$$.
+- The probability that they will agree in all rows of at least one band is $$1 - (1 - s^r)^b$$. This function is the probability that signatures will be compared for similarity.
+
+**Time complexity**: $$O(\text{#documents})$$.
+
+Check if candidate pairs are really similar:
+- Compare signatures.
+- Compare original documents.
+
+The number of detected pairs depends on:
+- The shape of the "detection curve" (the steeper the better).
+- The true distribution of similar pairs.
+
+**Note**: If $$b\cdot r = \text{constant}$$, increasing $$b$$ will shift the detection curve towards left (the curve may be steeper or flatter). On the contrary, increasing $$r$$ will shift the detection curve towards right and make it steeper.
+
+### Distance Measures
+**Properties**
+1. $$d(x, y) \geq 0$$.
+2. $$d(x, y) = 0$$ if and only if $$x = y$$.
+3. $$d(x, y) = d(y, x)$$.
+4. $$d(x, y) \leq d(x, z) + d(z, y)$$.
+
+**Euclidean distance**
+
+$$
+\begin{align*}
+d(x, y) = \Vert x - y\Vert^2
+\end{align*}
+$$
+
+**Jaccard distance**
+
+$$
+\begin{align*}
+d(x, y) = 1 - Sim(x, y)
+\end{align*}
+$$
+
+**Cosine distance**
+
+$$
+\begin{align*}
+d(x, y) = \arccos\left(\frac{x\cdot y}{\Vert x\Vert\Vert y\Vert}\right)
+\end{align*}
+$$
+
+**Hamming distance**: Hamming distance between two vectors is the number of components in which they differ. For example, the hamming distance between 10101 and 11110 is 3.
+
+### Random Projection
+**Key idea**
+- Pick a random vector $$v$$, which determines a hash function $$h_v$$ with two buckets.
+
+    $$
+    \begin{align*}
+    h_v(x) = 
+    \begin{cases}
+    1\quad & v\cdot x > 0,\\
+    -1\quad & \text{Otherwise}.
+    \end{cases}
+    \end{align*}
+    $$
+
+- Claim:
+    
+    $$
+    \begin{align*}
+    Pr(h(x) = h(y)) = Cosine\ Sim(x, y)
+    \end{align*}
+    $$
+
+**Sketches**\
+Instead of chosing a random vector from all possible vectors, it turns out to be sufficiently random if we restrict our choice to vectors whose components are $$+1$$ and $$-1$$. The result $$h_v(x)$$ is called the sketch of $$x$$.
+
+## PageRank
+A random surfer model: Markov process.
+
+### Original Version
+
+$$
+\begin{align*}
+v = Mv
+\end{align*}
+$$
+
+#### Convergence
+**Conditions**
+1. The graph is strongly connected, i.e., there is a path between any two nodes.
+2. There are no dead ends (nodes with no links going out).
+
+$$
+\begin{align*}
+v' &= \lim_{n\rightarrow \infty} M^n v\\
+v' &= Mv'
+\end{align*}
+$$
+
+$$v'$$ is the principal eigen vector of matrix $$M$$ (principal = biggest eigen value).
+
+### Teleporting Version
+Deal with dead ends and spider traps.
+
+$$
+\begin{align*}
+v = \beta Mv + (1 - \beta)e / n
+\end{align*}
+$$
+
+where $$e$$ is a vector of $$n$$ 1's and $$\beta$$ is a hyperparameter (usually 0.8 or 0.9).\
+For graph with dead ends, $$\sum_i v_i$$ may be smaller than 1. Still, useful in practice.
+
+An alternative algorithm for handling dead ends:
+1. Recursively remove dead ends and corresponding links.
+2. Calculate PageRank for nodes of the ramaining graph.
+3. Propagate the values to removed nodes.
+
+However, $$\sum_i v_i$$ may be bigger than 1.
+
+### Implementation
+Store $$M$$ and $$v_{\text{old}}$$ on the disk, while keep $$v_{\text{new}}$$ on RAM. Update $$v_{\text{new}}$$ in a single scan of $$M$$ and $$v_{\text{old}}$$.
+
+**Sparse matrix encoding**\
+Encode sparse matrix using only nonzero entries: [source node, out-degree, destination nodes].
+
+Assume $$v_{\text{new}}$$ can be fitted into RAM.
+> Initialize all entries of $$v_{\text{new}} = (1 - \beta) / N$$.\
+> **for** each node $$i$$
+> > Read into memory $$i, d_i, \text{dest}_1, \dots, \text{dest}_k, v_{\text{old}}(i)$$.\
+> > **for** $$j=1$$ **to** $$k$$
+> > > $$v_{\text{new}}(\text{dest}_j) += \beta v_{\text{old}}(i) / d_i$$
+
+## Model Ensembles
+### Bagging
+Reduce the variance. Use when:
+- Base learner is sensitive to small changes.
+- Base learner overfits data.
+- Data is scarce.
+
+Given a training set $$T$$.
+1. Sample $$T$$ with replacement to create $$n$$ versions of $$T$$.
+2. For each $$T_i$$, build a model.
+3. Aggregate predictions:
+    - Classification: Majority voting.
+    - Regression: Average.
+
+**Unique examples**: $$1 - 1/e \approx 63.2\%$$ 
+
+**Pros**
+- No thinking, no tuning.
+- Better accuracy (almost for free) / regularization.
+
+**Cons**
+- More computations (easily to run on parallel, however).
+- Loss of interpretability.
+
+### Boosting
+Develop a number of models that specilize in different regions of data. The more difficult case gets more attention.
+
+Build a sequence of classifiers $$C_1, \dots, C_k$$.
+1. $$C_1$$ is trained on the original data.
+2. $$C_{n + 1}$$ pays more attention to cases misclassified by $$C_1, \dots, C_n$$.
+
+**Pros**
+- Reduce exponentially fast the error on the training set.
+- Do not overfit the training set.
+- Most successful with primitive base classifier, e.g., decision stumps, linear regression.
+
+**Cons**
+- Models are expensive to build and difficult to interpret.
+
+### Random Forest
+For $$b=1$$ to $$B$$,
+1. Draw a bootstrap sample $$Z^\ast$$ of size $$N$$ from the training data.
+2. Grow a random-forest tree $$T_b$$ to the bootstrapped data, by recursively repeating the following steps for each terminal node of the tree, until the minimum node size $$n_{min}$$ is reached.
+    - Select $$m$$ variables at random from the $$p$$ variables.
+    - Pick the best variable / split-point among $$m$$.
+    - Split the node into two child nodes.
+
+Output: the ensemble of trees $$\{T_b\}$$.
+- Regression: $$\hat{f}(x) = E[T_b(x)]$$.
+- Classification: Majority voting.
+
+**Pros**
+- Superior accuracy.
+- No cross-validation needed (Out-of-Bag error estimate).
+- Few parameters to tune.
+- Hign robust (not very sensitive).
+- Trivial to parallelize.
+- Provide a heuristic measure of variable importance.
+
+#### Main Hyperparameters
+1. $$m$$: The number of variables used for node split process.
+2. $$n_{min}$$: The minimum node size.
+3. $$B$$: The number of trees in the ensemble.
+
+By default,
+- Classification: $$m = \lfloor \sqrt{p}\rfloor$$, $$n_{min} = 1$$.
+- Regression: $$m = \lfloor p / 3 \rfloor$$, $$n_{min} = 5$$.
+
+#### Out-of-Bag
+**Out-of-bag samples**\
+For each observation $$z_i = (x_i, y_i)$$, construct its random forest predictor by averaging only those trees corresponding to bootstrap samples in which $$z_i$$ did not appear.
+
+**Out-of-bag error**\
+The out-of-bag (OOB) error is the average error for each $$z_i$$ calculated using predictions from the trees that do not contain $$z_i$$ in their respective bootstrap sample. 
+
+#### Variable Importance
+At each split in each tree, the improvement in the split-criterion is the importance measure attributed to the splitting variable, and is accumulated over all the trees in the forest separately for each variable.
+
+Alternatively, we can use the OOB samples to consruct a different variable importance measure. When the $$b$$-th tree is grown, the OBB samples are passed down the tree, and the prediction accuracy is recorded. Then the values for the $$j$$-th variable are randomly permuted in the OOB samples, and the accuracy is again computed. The decrease in accuracy as a result of this permuting is averaged over all trees, and is used as a measure of the importance of variable $$j$$ in the random forest.
+
+### XGBoost
+**Notations**
+- $$K$$: The number of trees.
+- $$f_k$$: A function in the functional space $$\mathcal{F}$$.
+- $$\mathcal{F}$$: The set of all possible CARTs.
+- $$\omega(f_k)$$: The complecity of the tree $$f_k$$.
+- $$w$$: The vector of scores on leaves.
+- $$q$$: A function assigning each data point to the corresponding leaf.
+- $$T$$: The number of leaves.
+
+**Algorithm**
+1. Build an ensemble of CARTs.
+
+    $$
+    \begin{align*}
+    \hat{y}_i = \sum_{k=1}^K f_k(x_i), f_k\in \mathcal{F}
+    \end{align*}
+    $$
+
+2. Optimize the objective function.
+
+    $$
+    \begin{align*}
+    \text{obj}(\theta) = \sum_i^n l(y_i, \hat{y}_i) + \sum_{k = 1}^{K} \omega(f_k)
+    \end{align*}
+    $$
+
+**Additive training**\
+It is intractable to learn all the trees at once. Instead, we use an additive strategy: fix what we have learned, and add one new tree at a time. 
+
+$$
+\begin{align*}
+\hat{y}_i^{(t)} &= \sum_{k = 1}^t f_k (x_i) = \hat{y}_i^{(t - 1)} + f_t(x_i)\\
+\text{obj}^{(t)} &= \sum_{i=1}^n l(y_i, \hat{y}_i^{(t)}) + \sum_{i = 1}^t \omega(f_i)\\
+&= \sum_{i = 1}^n l(y_i, \hat{y}_i^{(t - 1)} + f_t(x_i)) + \omega(f_t) + \text{constant}
+\end{align*}
+$$
+
+In the general case, we take the Taylor expansion of the loss function up to the second order:
+
+$$
+\begin{align*}
+\text{obj}^{(t)} = \sum_{i=1}^n \left[l(y_i, \hat{y}_i^{(t - 1)}) + g_if_t(x_i) + \frac{1}{2}h_if_t^2(x_i) \right] + \omega(f_t) + \text{constant}
+\end{align*}
+$$
+
+where the $$g_i$$ and $$h_i$$ are defined as:
+
+$$
+\begin{align*}
+g_i &= \partial_{\hat{y}_i^{(t-1)}} l(y_i. \hat{y}_i^{(t - 1)})\\
+h_i &= \partial_{\hat{y}_i^{(t-1)}}^2 l(y_i. \hat{y}_i^{(t - 1)})
+\end{align*}
+$$
+
+After we remove all the constants, the specific objective at step $$t$$ becomes:
+
+$$
+\begin{align*}
+\sum_{i = 1}^n \left[g_if_t(x_i) + \frac{1}{2}h_if_t^2(x_i) \right] + \omega(f_t) 
+\end{align*}
+$$
+
+This becomes our optimization goal for the new tree.
+
+**Model complexity**\
+The definition of the tree $$f(x)$$:
+
+$$
+\begin{align*}
+f_t(x) = w_{q(x)}, w\in R^T, q: R^d\rightarrow \{1, 2, \dots, T\}.
+\end{align*}
+$$
+
+In XGBoost, we define the complexity as:
+
+$$
+\begin{align*}
+\omega(f) = \gamma T + \frac{1}{2} \lambda\sum_{j = 1}^T w_j^2
+\end{align*}
+$$
+
+## Basics of Time Series Analysis
+### Patterns
+The first we can do to identify patterns in a time series is separate it into components with easily understandable characteristics:
+
+$$
+\begin{align*}
+X_t = T_t + S_t + C_t + I_t
+\end{align*}
+$$
+
+where:
+- $$T_t$$: The trend shows a general direction of the time series data over a long period of time. It represents a long-term progression of the series (secular variation).
+- $$S_t$$: The seasonal component with fixed and known period. It is observed when there is a distinct repeated pattern observed between regular intervals due to seasonal factors: annual, monthly or weekly. Obvious examples include daily power consumption patterns or annual sales of seasonal goods.
+- $$C_t$$ (optional): Cyclical component is a repetitive pattern which does not occur at fixed intervals - usually observed in an economic context like business cycles.
+- $$I_t$$: The irregular component (residuals ) consists of the fluctuations in the time series that are observed after removing trend and seasonal / cyclical variations.
+
+**Multiplicative decomposition**
+
+$$
+\begin{align*}
+X_t = T_t * S_t * I_t \Leftrightarrow \log X_t = \log T_t + \log S_t + \log I_t
+\end{align*}
+$$
+
+### Prophet
+
+$$
+\begin{align*}
+X_t = T_t + S_t + H_t + \epsilon_t
+\end{align*}
+$$
+
+where:
+- $$T_t$$: Trend component.
+- $$S_t$$: Seasonal component.
+- $$H_t$$: Deterministic irregular component (holidays).
+- $$\epsilon$$: Noise.
+
+## Exploratory Data Analysis
+Data mining process: selecting, exploring, modeling.
+
+### CRISP Model
+Business understanding, data understanding, **data preparation**, data modeling, model evaluation and deployment.
+
+## Anomalies
+**Three scenarios**
+- Supervised anomaly detection: Labels available for both normal data and anomalies. Similar to rare class mining.
+- Semi-supervised anomaly detection: Labels available only for normal data.
+- Unsupervised anomaly detection: No labels assumed. Based on the assumption that anomalies are very rare compared to normal data.
+
+**Three types of anomalies**
+- Point anomalies: An individual data instance is anomalous if it deviates significantly from the rest of the data set.
+- Contextual anomalies: An individual data instance is anomalous within a context. Require notion of context. Also referred to as conditional anomalies.
+- Collective anomalies: A collection of related data instances is anomalous. Require a relationship among data instances (sequential data, spatial data, graph data). The individual instances within a collective anomaly are not anomalous by themselves.
+
+### Classification Based Techniques
+#### Supervised Classification Techniques
+**Pros**
+- Models that can be easily understood.
+- Many algorithms available.
+- High accuracy in detecting many kinds of known anomalies.
+
+**Cons**
+- Require both labels from both normal and anomaly class.
+- Cannot detect unknown and emerging anomalies.
+
+#### Semi-supervised Classification Techniques
+**Pros**
+- Models that can be easily understood.
+- Normal behavior can be accurately learned.
+- Many techniques available.
+
+**Cons**
+- Require labels from normal class.
+- Possible high false alarm rate - previously unseen (yet legitimate) data records may be recognized as anomalies.
+
+#### Nearest Neighbor Based Techniques
+**Key assumption**: Normal points have close neighbors while anomalies are located far from other points.
+
+**General two-step approach**
+1. Compute neighborhood for each data record.
+2. Analyze the neighborhood to determine whether data record is anomaly or not.
+
+**Categories**
+- Distance based methods: Anomalies are data points most distant from other points.
+- Density based methods: Anomalies are data points in low density regions.
+    - LOF approach: For each point, compute the density of its local neighborhood. Compute local outlier factor (LOF) of a sample $$p$$ as the average of ratios of the density of sample $$p$$ and the density of its nearest neighbors. Outliers are points with largest LOF value.
+
+**Terms**
+- $$k\_NN(x)$$: The average of distances from point $$x$$ to $$k$$ closest points.
+- $$kth\_NN(x)$$: The biggest distance among distances from point $$x$$ to $$k$$ closest points.
+- $$\rho(x) = 1 / kth\_NN(x)$$ (approx.).
+- $$LOF(x) = E[\rho(y) / \rho(x)]$$, where $$y$$ is in the $$k$$-neigborhood of $$x$$.
+
+**Cons**
+- Applicable to specific type of data: n-dimensional "points" (vectors), with a meaningful "distance" or "similarity" measure.
+- Computationally very expensive: $$O(n^2)$$.
+- If "normal points" do not have sufficient number of neighbors, the techniques may fail.
+- In high dimensional spaces, data is sparse and the concept of similarity may not be meaningful anymore.
+
+#### Isolation Forest
+- Given a set of points in $$R^n$$, build a "random tree" with leaves containing single points. When you have to split data select a variable/dimension and a splitting point at random. Iterate till all points are assigned to leaves.
+- Repeat this process many times (build many trees) and measure for each data point its "average depth" in the forest.
+- The smaller the "average depth" of a point the more likely it is an outlier.
+
 ## References
 1. Slides of Advances in Data Mining course, 2022 Fall, Leiden University.
 2. [Principal component analysis.](https://en.wikipedia.org/wiki/Principal_component_analysis)
@@ -373,3 +853,6 @@ The more different elements we see in th stream, the more different hash-values 
 6. [Bloom filters – Introduction and implementation](https://www.geeksforgeeks.org/bloom-filters-introduction-and-python-implementation/)
 7. [Bloom filters.](https://florian.github.io/bloom-filters/)
 8. [Lecture 11: Bloom filters, final review.](https://courses.cs.washington.edu/courses/csep544/11au/lectures/lecture11-bloom-filters-final-review.pdf)
+9. Hastie, Trevor, Tibshirani, Robert and Friedman, Jerome. *The Elements of Statistical Learning*. New York, NY, USA: Springer New York Inc., 2001.
+10. [OOB errors for random forests.](https://scikit-learn.org/stable/auto_examples/ensemble/plot_ensemble_oob.html)
+11. [Introduction to boosted trees.](https://xgboost.readthedocs.io/en/stable/tutorials/model.html)
