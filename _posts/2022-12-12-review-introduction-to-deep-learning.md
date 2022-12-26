@@ -3,6 +3,8 @@ layout: post
 title: "Review: Introduction to Deep Learning"
 categories: deep learning
 tags: deep-learning machine-learning
+header-includes:
+  - \usepackage{algorithm2e}
 
 ---
 
@@ -24,7 +26,7 @@ First applications:
 - NetTalk: A text-to-speech network that learns to pronounce English text. 
     - Input: Phrase and phonetic representation.
     - 7$$\times$$ 29 inputs $$\rightarrow$$ 80 hidden units $$\rightarrow$$ 26 output units
-- ALVINN: Drives a car.
+- ALVINN: Drive a car.
 - FALCON: A fraud detection system.
 
 Problems of adding layers: Overfitting, local minima entrapment, vanishing or exploding gradients.\
@@ -64,8 +66,8 @@ F(N, d) =
 $$
 
 In highly dimensional spaces:
-1. #points in $$d$$-dimensional space $$<$$ 2$$d$$ $$\rightarrow$$ almost always linearly separable
-2. #points in $$d$$-dimensional space $$>$$ 2$$d$$ $$\rightarrow$$ almost always not linearly separable
+1. #points in $$d$$-dimensional space $$<$$ 2$$d$$ $$\rightarrow$$ almost always linearly separable.
+2. #points in $$d$$-dimensional space $$>$$ 2$$d$$ $$\rightarrow$$ almost always not linearly separable.
 
 #### Gradient Descent Algorithm
 Goal: Find a minimum of a function $$f$$.\
@@ -189,7 +191,7 @@ We need to estimate $$\mu$$ and $$\sigma$$ over the training set to normalize in
 > $$
 
 #### Gradient Clipping
-Gradient clipping is a technique that tackles exploding gradients. The idea of gradient clipping is very simple: If the gradients gets too large, we rescale it to keep it small. More precisely, if $$\Vert g \Vert > c$$, then
+Gradient clipping is a technique that tackles exploding gradients. The idea of gradient clipping is very simple: If the gradients get too large, we rescale it to keep it small. More precisely, if $$\Vert g \Vert > c$$, then
 
 $$
 \begin{align*}
@@ -204,7 +206,7 @@ Gradient clipping ensures the gradient vector $$g$$ has norm at most $$c$$. This
 #### Regularization Methods
 - L1 or L2 regularization: Penalty on too big values of weights.
 - Alternative loss functions: MSE, cross entropy, LogLoss, HuberLoss, etc.
-- Batch normalization 
+- Batch normalization. 
 - Node dropout: At every training step (processing a batch), each node has a chance $$0 < p < 1$$ to be disabled (not from the output layer). All nodes are active when testing (a form of bagging a collection of networks).
 - Monte Carlo dropout: Normal dropout + Aggregate predictions over random sub-networks when testing.
 
@@ -230,7 +232,7 @@ Methods:
 **SGD with Nesterov accelerated gradient**
 1. Require: Initial parameter $$\theta$$, initial velocity $$v$$, learning rate $$\epsilon$$, momentum parameter $$\alpha$$.
 2. Sample a minibatch of $$m$$ examples from the training set.
-3. Apply interim update $$\tilde{\theta} = \theta + \alpha v$$
+3. Apply interim update $$\tilde{\theta} = \theta + \alpha v$$.
 4. Compute gradient estimate **at interim point** $$g = \frac{1}{m}\nabla_{\tilde{\theta}}\sum L$$.
 5. Compute velocity update $$v = \alpha v - \epsilon g$$.
 6. Apply update $$\theta = \theta + v$$.
@@ -324,8 +326,8 @@ Some solutions:
 
 ## Recurrent Networks
 ### Backpropagation Through Time
-- The output value does depend on the state of the hidden layer, which depends on all previous states of the hidden layer (and thus, all previous inputs)
-- Recurrent net can be seen as a (very deep) feedforward net with shared weights
+- The output value does depend on the state of the hidden layer, which depends on all previous states of the hidden layer (and thus, all previous inputs).
+- Recurrent net can be seen as a (very deep) feedforward net with shared weights.
 - Unfold the network over time and use SGD to find the minimum.
 
 Problems:

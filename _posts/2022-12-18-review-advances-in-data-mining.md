@@ -42,7 +42,7 @@ TF.IDF = TF_{ij} \times IDF_i
 \end{align*}
 $$
 
-**Hadoop**: Haddop distributed file system (hdfs).
+**Hadoop**: Hadoop distributed file system (hdfs).
 - Chunks, replicas, "read-only", "write / append once".
 - Unlimited scalability (million of nodes).
 - Very robust, can run on a cluster / grid / WAN.
@@ -139,10 +139,10 @@ User-user collaborative filtering / item-item collaborative filtering.
 
 ### Matrix Factorization
 #### UV-Decomposition
-Metrics: RMSE
+Metrics: RMSE.
 - Initialize $$U$$ and $$V$$.
 - Ordering the optimization of the elements of $$U$$ and $$V$$. Firstly, update each element of $$U$$. After that, update each element of $$V$$.
-- Converging to a minimum.
+- Converge to a minimum.
 
 #### Gradient Descent
 - Initialize all variables at random.
@@ -202,7 +202,7 @@ $$
 \end{align*}
 $$
 
-Total error: $$\sum\left((\text{sim}(p_i, p_j) - \text{dist}(q_i, q_j))^2\right)$$\
+Total error: $$\sum\left((\text{sim}(p_i, p_j) - \text{dist}(q_i, q_j))^2\right)$$.\
 An optimization problem: Random initialization and SGD optimization.
 
 ### Locally Linear Embeddings
@@ -325,7 +325,7 @@ Two competing forces:
     - Test fewer bits for key value $$\rightarrow$$ Higher false positive rate.
 
 **Optimizing $$k$$**\
-For fixed $$m, n$$, choose $$k$$ to minimize the false positive rate$$f$$.
+For fixed $$m, n$$, choose $$k$$ to minimize the false positive rate $$f$$.
 
 $$
 \begin{align*}
