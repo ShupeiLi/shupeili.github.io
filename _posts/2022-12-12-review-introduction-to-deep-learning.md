@@ -3,8 +3,6 @@ layout: post
 title: "Review: Introduction to Deep Learning"
 categories: deep learning
 tags: deep-learning machine-learning
-header-includes:
-  - \usepackage{algorithm2e}
 
 ---
 
