@@ -149,7 +149,7 @@ Topic modelling is an unsupervised technique:
 #### Latent Dirichlet Allocation (LDA)
 A generative probabilistic model:
 - Topic: Probability distribution over fixed vocabulary.
-- Each document is a distribution over topicsd.
+- Each document is a distribution over topics.
     - Dirichlet distribution: Continuous multivariate probability distribution.
     - The prior set on Dirichlet distribution is sparse.
 
@@ -172,7 +172,7 @@ How to evaluate?
 1. Task definition.
     - Text unit (aka. document): Complete documents, sections, sentences.
     - Categories.
-2. Example data (Refer to Resources).
+2. Example data (refer to Resources).
 3. Pre-processing.
     - Words as features: Tokenization. For most applications, apply lowercasing and removal of punctuation.
     - Additional pre-processing steps might include: Remove stop words, lemmatization or stemming, add phrases as features (e.g. "PhD defense").
@@ -246,7 +246,7 @@ Baseline summarization system: Take the first three sentences from the document.
 - Training data bias: Most used benchmark sets for training and evaluation summarization models are based on news data.
     - In newspaper articles, the most important information is in the first paragraph. That is why Lead-3 is such a strong baseline. However, this characteristic does not always apply to other domains.
 - Evaluation.
-    - Compare to reference summaries: Compute overlap with human reference summary (refer to ROUGE metrics).
+    - Compare to reference summaries: Compute overlap with human reference summary (refer to ROUGE).
     - Ask human judges.
         - Criteria to rate a summary: Relevance / importance, consistency, fluency (quality of individual sentences), coherence (collective quality of all sentences).
         - Ask multiple judges per summary.
