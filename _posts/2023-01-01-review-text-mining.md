@@ -27,12 +27,29 @@ Challenges of text data:
 4. Language is infinite.
     - Heaps' law: $$V_R(n) = Kn^\beta$$, where $$V_R$$ is the number of distinct words in an instance text of size $$n$$. $$K$$ and $$\beta$$ are free parameters determined empirically. With English text corpora, typically $$K$$ is between 10 and 100, and $$\beta$$ is between 0.4 and 0.6. 
 
+Long-tail distribution for text data: In a given collection, there are many items with a low frequency and few terms with a high frequency.
+
+**Cleaning**:
+- PDF / docx / HTML to text.
+- Language filtering.
+- Encoding.
+- Regex patterns.
+- Spelling correction (minimal edit distance).
+
+**Linguistic pipeline**:
+- Tokenization.
+- Stop word removal.
+- Lemmatization / stemming.
+- POS-tagging.
+
 #### Go from Raw Text to Clean Text
-**Written text:**
+**Written text**:
 - Digitized documents: Optical character recognition (OCR).
 - Born-digital documents.
 
-**Noises:**
+OCR: A technique for converting the image of a printed text to a digital text.
+
+**Noises**:
 - Scanned text and born-digital PDFs: OCR errors, character encoding errors.
     - Character encoding: The way that a computer displays text in a way that humans can understand. That is, translate a string of 0s and 1s to a character.\
     Example: ASCII, a 7-bit encoding based on English alphabet. Unicode, the universal standard for all writing systems (e.g. UTF-8).
@@ -72,6 +89,16 @@ In slides, the cost of all operations is 1 (Levenshtein distance).
     <summary>Solution</summary>
       3.
     </details>
+3. Levenshtein distance: "where" to "here".
+    <details>
+    <summary>Solution</summary>
+      3.
+    </details>
+4. Levenshtein distance: "snowy" to "no way".
+    <details>
+    <summary>Solution</summary>
+      3.
+    </details>
 
 #### Tokenization
 **Token**: An instance of a word or term occurring in a document.\
@@ -87,6 +114,9 @@ In slides, the cost of all operations is 1 (Levenshtein distance).
 - Definition: Extremely common words that don't carry any content.
 - Remove stop words in: topic modelling, keyword extraction.
 - NEVER remove stop words in: sequence labelling tasks, classification tasks with small data.
+
+Are capitalization and punctuation more useful for sequence labelling or for text classification?\
+Sequence labelling. Order / context. Meaning / boundaries.
 
 #### Sentence Splitting
 Need sentence splitting for tasks that require sentence-level analysis, for example:
@@ -105,6 +135,38 @@ Lemma and stem are two types of basic word forms.\
 **Stem**: The portion of a word that is common to a set of (inflected) forms when all affixes are removed and is not further analyzable into meaningful elements.
 
 Prefer lemmas over stems. Stemming can be effective for very small collections.
+
+### Topic Modelling
+**Assumptions**:
+1. Each document consists of a mixture of topics.
+2. Each topic consists of a mixture of words.
+
+Topic modelling is an unsupervised technique:
+- Topic labels are not given.
+- The number of topics needs to be pre-specified.
+- Analogy: Clustering.
+
+#### Latent Dirichlet Allocation (LDA)
+A generative probabilistic model:
+- Topic: Probability distribution over fixed vocabulary.
+- Each document is a distribution over topicsd.
+    - Dirichlet distribution: Continuous multivariate probability distribution.
+    - The prior set on Dirichlet distribution is sparse.
+
+Generate a document as a bag of words: Sample topic $$\rightarrow$$ words.
+
+Challenges of LDA:
+1. Choose the number of topics.
+2. Random initialization of clustering leads to non-deterministic outcome.
+    - Alternative: Non-negative matrix factorization (NMF).
+3. Interpret the output.
+
+Use LDA output for classification?\
+Represent document as "bag of topics" (label documents with topics). A vector with the topic ids as features and the topic probability as value (use topics as features).
+
+How to evaluate?
+1. Topic coherence, also used for optimizing the number of topics. For example, use a word2vec model to measure similarity of words inside a topic and between topics.
+2. Human evaluation: Word intrusion.
 
 ### Classification
 1. Task definition.
@@ -170,13 +232,66 @@ Limitations of using a list of names to recognize entities:
 **Distant supervision**
 - If labelled data is limited.
 - Use the knowledge base to identify relations in the text and discover relations that are not yet in the knowledge base.
-- Start with a large, manually created knowledge base. Find occurrences of pairs of related entities from the database in sentences. Train a supervised relation extraction classifier on the found entities and their context. Apply the classifier to sentences with yet unconnected other entities in order to find new relations.
+- Automatic labelling. Start with a large, manually created knowledge base. Find occurrences of pairs of related entities from the database in sentences. Train a supervised relation extraction classifier on the found entities and their context. Apply the classifier to sentences with yet unconnected other entities in order to find new relations.
 
 ### Summarization
+**Extract**: A summary composed completely of material from the source.\
+**Abstract**: A summary that contains material not originally in the source, but shorter paraphrases.
+
+Baseline summarization system: Take the first three sentences from the document.
+
+**Challenges**:
+- Factual consistency for abstractive summarization: Contain non-faithful content $$\rightarrow$$ human judgement.
+- Task subjectivity / ambiguity: Constrained summary vs. unconstrained summary.
+- Training data bias: Most used benchmark sets for training and evaluation summarization models are based on news data.
+    - In newspaper articles, the most important information is in the first paragraph. That is why Lead-3 is such a strong baseline. However, this characteristic does not always apply to other domains.
+- Evaluation.
+    - Compare to reference summaries: Compute overlap with human reference summary (refer to ROUGE metrics).
+    - Ask human judges.
+        - Criteria to rate a summary: Relevance / importance, consistency, fluency (quality of individual sentences), coherence (collective quality of all sentences).
+        - Ask multiple judges per summary.
+    - Challenges: ROUGE often has weak correlation with human judgements. But human judgements for relevance and fluency are strongly correlated to each other.
+
+#### Extractive Summarization
+Select the most important nuggets (sentences). A classification or ranking task.
+
+**Methods**:
+- Unsupervised methods:
+    - Centrality-based: Measure the cosine similarity between each sentence and the document. And select sentences with the highest similarity (the most representative sentences).
+    - Graph-based.
+- Supervised methods:
+    - Feature-based: Feature engineering + classifier.
+    - Embeddings based.
+
+**Pros**:
+- Feasible / easy to implement.
+- Reliable (literal re-use of text).
+
+**Cons**:
+- Limited in terms of fluency.
+- Fixes required after sentence selection.
+    - Problems with sentence selection: Selecting sentences that contain unresolved references to sentences not included in the summary or not explicitly included in the original document.
+    - Improvements: Sentence ordering / revision / fusion / compression.
+
+#### Abstractive Summarization
+Need sequence-to-sequence (text-to-text-transformation or translation) models. Training data is pairs of longer and shorter texts. Learn a mapping between an input sequence and an output sequence.
+
+**Methods**:
+- Sequence-to-sequence models.
+- Encoder-decoder architectures.
+
+**Pros**:
+- More fluent / natural result.
+
+**Cons**:
+- A lot of training data needed.
+- Risk of untrue content.
 
 ### Evaluation
-- Evaluation of complete application (extrinsic evaluation): Human.
+- Evaluation of complete application (extrinsic evaluation): Human. Effectiveness in context.
 - Evaluation of the components (intrinsic evaluation): Need ground truth labels. Existing labels or human-assigned labels.
+
+Train-test split or cross validation to prevent overfitting.
 
 #### Metrics
 $$A$$ is the set of labels assigned by algorithms, while $$T$$ is the set of true labels.
@@ -191,6 +306,34 @@ $$A$$ is the set of labels assigned by algorithms, while $$T$$ is the set of tru
 4. $$F_1$$ score.
 
    $$\begin{align*}F_1 = 2\cdot \frac{\text{precision}\cdot \text{recall}}{\text{precision} + \text{recall}}\end{align*}$$
+5. RMSE.
+
+   $$\begin{align*}RMSE = \sqrt{\sum_{i=1}^n \frac{\left(\hat{y}_i - y_i \right)^2}{n}}\end{align*}$$
+
+#### ROUGE
+The recall of $$n$$-grams in the automatically generated summary compared to the reference summary.
+
+$$
+\begin{align*}
+\text{ROUGE-N} = \frac{\text{#n-grams in automatic AND reference summary}}{\text{#n-grams in reference summary}}
+\end{align*}
+$$
+
+- ROUGE-1: Overlap of unigrams (single words).
+- ROUGE-2: Overlap of bigrams (word pairs).
+- ROUGE-L: Overlap of Longest Common Subsequences (LCS).
+
+**Exercises**
+1. Compute ROUGE-2 for System A and System B.\
+   Reference Summary: police killed the gunman\
+   System A: police kill the gunman\
+   System B: the gunman kill police
+    <details>
+    <summary>Solution</summary>
+    A: 3/5.<br>
+    B: 1/5.<br>
+    Therefore, System A is better than system B according to ROUGE-2.
+    </details>
 
 ## Models
 ### Vector Semantics
@@ -241,6 +384,17 @@ From word embeddings to document embeddings:
 2. Use doc2vec.
 3. Use BERT embeddings, i.e., SentenceBERT, which is highly efficient but only for short documents / passages.
 
+Parallelogram model:
+
+$$
+\begin{align*}
+\hat{b}^\ast = \text{argmin}_{x} \text{ distance} (x, b - a + a^\ast)
+\end{align*}
+$$
+
+Solve analogy problems.\
+Example: queen = king - man + woman
+
 ### Term Weighting
 #### Term Frequency (TF)
 The term count $$tc_{t, d}$$ of term $$t$$ in document $$d$$ is defined as the number of times that $$t$$ occurs in $$d$$.
@@ -284,7 +438,7 @@ Maximize the posterior probability:
 
 $$
 \begin{align*}
-c_{MAP} = argmax_{c\in C} P(d|c)P(c)
+c_{MAP} = \text{argmax}_{c\in C} P(d|c)P(c)
 \end{align*}
 $$
 
@@ -293,6 +447,9 @@ $$
 - $$P(d\vert c) = P(t_1,\dots, t_k\vert c) = P(t_1\vert c)\cdots P(t_\vert c)$$, where $$P(t\vert c) = \frac{T_{ct} + 1}{\left(\sum_{t'\in V} T_{ct'}\right) + \vert V\vert}$$ (add-one / Laplace smoothing).
 - $$T_{ct}$$: The number of occurrences of $$t$$ in training documents from class $$c$$.
 - $$\vert V\vert$$: The size of the vocabulary.
+
+Why is add-one smoothing needed?\
+Because a word in the test document that does not occur in the training set will have a zero probability and the multiplication of zero probabilities will lead to a combined probability of zero.
 
 **Exercises**
 1. Calculate $$P(\text{no spam}\vert 5)$$ and $$P(\text{spam}\vert 5)$$.
@@ -305,25 +462,28 @@ $$
    |4|siks symposium deadline june|no spam|
    |5|registration assistance symposium deadline|?|
 
-<details>
-<summary>Solution</summary>
-$$
-\begin{align*}
-P(\text{no spam}\vert 5) &= \frac{2}{4}\cdot\frac{1}{18}\cdot\frac{1}{18}\cdot\frac{3}{18}\cdot\frac{2}{18} = 2.86 \times 10^{-5}\\
-P(\text{spam}\vert 5) &= \frac{2}{4}\cdot\frac{1}{19}\cdot\frac{2}{19}\cdot\frac{1}{19}\cdot\frac{1}{19} = 7.67 \times 10^{-6}
-\end{align*}
-$$
+    <details>
+    <summary>Solution</summary>
+    $$
+    \begin{align*}
+    P(\text{no spam}\vert 5) &= \frac{2}{4}\cdot\frac{1}{18}\cdot\frac{1}{18}\cdot\frac{3}{18}\cdot\frac{2}{18} = 2.86 \times 10^{-5}\\
+    P(\text{spam}\vert 5) &= \frac{2}{4}\cdot\frac{1}{19}\cdot\frac{2}{19}\cdot\frac{1}{19}\cdot\frac{1}{19} = 7.67 \times 10^{-6}
+    \end{align*}
+    $$
 
-Therefore, message 5 is no spam.
-</details>
+    Therefore, message 5 is no spam.
+    </details>
 
 ### Sequence Labelling
+Context: HMM < CRF < traditional RNN < LSTM / biLSTM < BERT\
+Longer context used, more powerful.
+
 #### Hidden Markov Model (HMM)
 A probabilistic sequence model. Denote the tag as $$t$$ and th word as $$w$$:
 
 $$
 \begin{align*}
-\hat{t}_{1:n} = argmax_{t_1, \dots, t_n} P(t_1, \dots, t_n\vert w_1, \dots, w_n) \approx argmax_{t_1, \dots, t_n} \prod_{i=1}^n P(w_i\vert t_i)P(t_i\vert t_{i-1})
+\hat{t}_{1:n} = \text{argmax}_{t_1, \dots, t_n} P(t_1, \dots, t_n\vert w_1, \dots, w_n) \approx \text{argmax}_{t_1, \dots, t_n} \prod_{i=1}^n P(w_i\vert t_i)P(t_i\vert t_{i-1})
 \end{align*}
 $$
 
@@ -337,7 +497,7 @@ Probabilities are estimated by counting on a labelled training corpus.\
 Supervised learning: Features, IOB-labelled texts.
 
 **Typical features**:
-1. Part-of-speech
+1. Part-of-speech: Some word categories are more likely to be (part of an) entity.
 2. Gazatteer.
 3. Word shape.
 
@@ -378,6 +538,15 @@ BERT for sentence similarity:
 2. SBERT: Independent encoding of the two sentences with a BERT encoder. Then measure similarity between the two embeddings.
 
 ### Sequence-to-sequence
+**PEGASUS**: Encoder-decoder pre-training for abstractive summarization.
+
+Pre-training objectives (self-supervised):
+1. Masked language modelling (like BERT).
+2. Gap sentences generation (GSG).
+
+Motivation:
+1. Large-scale document-summary datasets for supervised learning are rare.
+2. Creating training data is expensive (low-resource summarization).
 
 ### Transfer Learning
 Inductive transfer learning: Transfer the knowledge from pre-trained language models to any NLP task.
@@ -410,6 +579,11 @@ Challenges of state-of-the-art methods:
 **Create labelled data**\
 Keywords: Annotation guidelines, crowdsourcing (quality control), inter-rater agreement (Cohen's Kappa).
 
+Why should we have multiple human annotators if we create labelled data?
+1. We need to estimate the reliability of the data.
+2. We need to measure the inter-rater agreement between annotators.
+3. There is human interpretation involved in the annotation.
+
 **Cohen's Kappa**
 
 $$
@@ -427,6 +601,8 @@ Interpretation of Kappa: Agreement.
 |---|---|---|---|---|---|
 |No|Slight|Fair|Moderate|Substantial|Almost perfect|
 
+The interpretation of $$\kappa=0$$: Measured agreement equal to expected agreement.
+
 **Exercises**
 1. Calculate $$\kappa$$.
 
@@ -436,16 +612,36 @@ Interpretation of Kappa: Agreement.
    |A1|Yes|20|5|
    ||No|10|15|
 
-<details>
-<summary>Solution</summary>
-$$
-\begin{align*}
-\kappa = \frac{0.7 - 0.5}{1 - 0.5} = 0.4
-\end{align*}
-$$
-</details>
+    <details>
+    <summary>Solution</summary>
+    $$
+    \begin{align*}
+    \kappa = \frac{0.7 - 0.5}{1 - 0.5} = 0.4
+    \end{align*}
+    $$
+    </details>
+2. Calculate $$\kappa$$.
+
+   |||A2|||
+   |---|---|---|---|---|
+   |||Positive|Negative|Neutral|
+   |A1|Positive|25|10|5|
+   ||Negative|0|25|15|
+   ||Neutral|5|5|10|
+
+    <details>
+    <summary>Solution</summary>
+    $$
+    \begin{align*}
+    \kappa = \frac{0.6 - 0.34}{1 - 0.34} = \frac{0.26}{0.66}
+    \end{align*}
+    $$
+    </details>
 
 #### Unlabeled Data
+- For pre-training language models.
+- General vs. domain-specific.
+- Typically large.
 
 #### Other
 - Dictionaries (gazetteers).
@@ -458,19 +654,118 @@ $$
 - General domain or specific domain.
 
 ## Applications
-
 ### Opinionated Content
-
 #### Sentiment Analysis
 
+|Level of Sentiment Analysis|Task Type|
+|---|---|
+|Document level|Classification|
+|Sentence level|Classification|
+|Entity and aspect level|Extraction and classification|
+
+**Concepts**\
+Sentiment classes: negative, positive, neutral.\
+Common for sentiment: ordinal scales.\
+Ordinal variable: Variable with values that are categorical but have an order.\
+Ordinal regression: Learn a model to predict class labels on an ordinal scale.
+
+$$
+\begin{align*}
+P(y\leq j\vert \theta_j, w, X) = \frac{1}{1 + e^{-(\theta_j - Xw)}}
+\end{align*}
+$$
+
+- $$y$$: Target variable.
+- $$\theta_j$$: Threshold for class $$j$$.
+- $$X$$: Input instances.
+- $$w$$: Weights to be learned.
+
+**Aspect-based sentiment analysis**: Find quintuple (E, A, S, H, C).
+- E: Opinion target. Entity, event, or topic.
+    - Metadata / NER / event detection.
+- A: Aspect or feature of E.
+    - Information extraction and aspect categorization.
+    - It helps to have a product database: Facilitate aspect extraction.
+        1. Which products exist.
+        2. Which aspects a given product type has.
+- S: Sentiment / opinion content. Sentiment score of A.
+    - Given E and A, we can classify the sentiment of sentence(s) describing the aspect.
+- H: Opinion holder.
+    - Authors / NER.
+- C: Context. Time and location.
+    - Date & location stamp / time expression recognition and geolocation classification.
+
+Challenges:
+1. Sentiment words do not always express a sentiment.
+2. Sentiment words are ambiguous, context- and domain dependent.
+3. Sarcasm.
+4. Objective sentences that express sentiments.
+
+Evaluation: 
+- Average F-score is computed on positive and negative labels only.
+
+    $$
+    \begin{align*}
+    F_1^{PN} = \frac{F_1^{Pos} + F_1^{Neg}}{2}
+    \end{align*}
+    $$
+- In case of regression, use RMSE.
+
 #### Stance Detection
+**Concepts**\
+A classification task. Model the stance relationship between a text and a target.\
+Common labels: Pro, Con, Neutral. Sometimes, a questioning / discussing label.\
+Methods: Pre-trained large language models such as BERT and RoBERTa.
+
+Repeatability: Same team, same experimental setup.\
+Reproducibility: Different team, same experimental setup.\
+Replicability: Different team, different experimental setup.
+
+Why is the standard deviation over runs important in reproducing results?\
+Because there is variation between seeds of the Transformer models.
 
 ### Industrial Text Mining
 #### CV-vacancy Matching
+1. Document understanding: CV parsing and extraction.
+    - Rule-based approach.
+    - Machine learning: Sequence labelling, CRF / HMM $$\rightarrow$$ DL.
+2. Matching people and jobs: Vacancy parsing.
+    - Normalization.
+    - Ontology.
+    - Document vectors and deep learning matching.
+3. Knowledge graphs: Mine, filter, attach.
 
 ### Domains
-
 #### Biomedical Text Mining
+Motivation: Large amounts of data in the biomedical & health domain.
+- Pubmed growth.
+- Data size growth: Scientific literature, experimental data.
+
+Goal: Interactive knowledge discovery. Assist the expert in finding the information they need.
+
+Tasks:
+- Gene / protein / disease extraction.
+- Adverse events.
+- Predict time-to-death.
+- Drug interactions.
+
+**Workflow**\
+Needed:
+1. Ontology.
+2. Pre-processing.
+3. Pre-trained BERT for NER and ontology linking (e.g. BioBERT).
+4. Labelled data for supervised NER fine-tuning and evaluation.
+5. GPU-computing.
+
+Steps:
+1. Filter the potentially relevant messages (Information retrieval).
+2. Create training data for NER (NER).
+3. Train an NER model (NER).
+4. Normalization (map to ontology) (RE).
+5. Relation extraction (RE).
+    - Mention structure-based and co-occurrence based. Structure-based methods are phrase based and are able to detect triples in text. They often have a higher precision than co-occurrence based methods but lower recall due to limited set of relations.
+6. Distant supervision (RE).
+7. Visualization.
 
 ## References
 1. Slides of Text Mining course, 2022 Fall, Leiden University.
