@@ -245,7 +245,7 @@ EAs taxonomy: genetic algortims (GA), evolution strategies (ES), evolutionary pr
 - Disadvantages.
     - No guarantee for finding optimal solutions within a finite amount of time. This is true for all global optimization methods.
     - No complete theoretical basis (yet), but much progress is being made.
-    - Parameter tuning is sometimes based on trial and error. Solution: Self-adaptation of strategy parameters
+    - Parameter tuning is sometimes based on trial and error. Solution: self-adaptation of strategy parameters.
 - Two views.
     1. Global random search methods.
         - Probabilistic search with high "creativity".
@@ -314,7 +314,7 @@ Key points
 - Phenotype space: $M = \prod_{i = 1}^n[u_i, v_i]\subseteq \mathbb{R}^n$ with interval bounds $u_i < v_i$
 - Genotype space: $$\{0, 1\}^l$$ with $l = n\cdot l_x$.
 - Decoding function: $$h^{\prime}(\mathbf{a})=\left[h_1\left(a_1, \ldots, a_{l_x}\right), h_2\left(a_{1+l_x}, \ldots, a_{2 l_x}\right), \ldots, h_n\left(a_{1+(n-1) l_x}, \ldots, a_l\right)\right]$$ 
-    with (like little-endian)
+    with (like little-endian).
 
     $$
     \begin{align*}
@@ -378,7 +378,7 @@ p_i = \frac{f_i}{\sum_{j = 1}^\mu f_j}
 $$
 
 Disadvantages
-- Functions $f$ and $f + c$ with constant $c$ handled differently
+- Functions $f$ and $f + c$ with constant $c$ handled differently.
 - If all function values in a population are similar $\Rightarrow$ random selection.
 - Require positive-values, maximization.
 - Need the population size $\mu$.
@@ -483,7 +483,7 @@ Step 4.
 
 $$
 \begin{align*}
-\text{Offspring 1} &= (1, 5, \underline{6, 9, 2, 1}, 7, 8, 4)\\
+\text{Offspring 1} &= (3, 5, \underline{6, 9, 2, 1}, 7, 8, 4)\\
 \text{Offspring 2} &= (2, 9, \underline{3, 4, 5, 6}, 7, 8, 1)
 \end{align*}
 $$
@@ -564,7 +564,7 @@ Mutation and small deviations
 ### Schema Theory
 #### Schema
 **Definition**\
-A schema $H\in\mathbb{B}^l$ is a partial instantiation of a string. Usually the uninstantiated elements are denoted by "$*$", sometimes called "don't care" symbol or "wild card". A schema defines a subset of $\mathbb{B}^l: H\in \{0, 1, *\}$.
+A schema $H\in\mathbb{B}^l$ is a partial instantiation of a string. Usually the uninstantiated elements are denoted by "$*$", sometimes called "don't care" symbol or "wild card". A schema defines a subset of $$\mathbb{B}^l: H\in \{0, 1, *\}$$.
 
 - Set of all instances of schema $H = (h_1, \dots, h_l)$:
 
@@ -963,6 +963,12 @@ Remarks
 - Expectation typically zero, $\mu = 0$.
 - Standard deviation $\sigma$ needs to be adapted.
 
+> Why is a normal distribution used in ES for continuous problems?
+> - Because it can maximize the unbiasedness.
+> - Because of its infinite support.
+> - Because the total probabilities of increasing and decreasing a decision variable are the same.
+{: .prompt-tip}
+
 **Idea behind mutation**
 - Biological model: repair enzymes, mutator genes.
 - No deterministic control: strategy parameters evolve.
@@ -1287,12 +1293,6 @@ $$
 
 Example 2: Proportional selection in genetic algorithms. $\tau^* \approx \lambda\ln\lambda$.
 
-> Why is a normal distribution used in ES for continuous problems?
-> - Because it can maximize the unbiasedness.
-> - Because of its infinite support.
-> - Because the total probabilities of increasing and decreasing a decision variable are the same.
-{: .prompt-tip}
-
 ### Self-adaptation
 #### Concepts
 - No deterministic step size control. Rather: evolution of step sizes.
@@ -1471,7 +1471,7 @@ Example 2: Proportional selection in genetic algorithms. $\tau^* \approx \lambda
 > 1. Theoretical success probability / rate is monotonically decreasing with respect to the step-size. 
 > 2. Theoretical success probability can be easily measured empirically by counting the number of successful mutations over a some period. 
 > 3. The theoretical progress rate is a unimodal (with a single peak) function of the step-size. 
-> 4. We can compute the optimal step-size at the peak value of progress rate curve, and calculate the optimal success rate, which is the success rate at the optimal step-size, which is about $1/5$.
+> 4. We can compute the optimal step-size at the peak value of progress rate curve and calculate the optimal success rate that is the success rate at the optimal step-size, which is about $1/5$.
 > 5. In practice, we increase the step-size if the measured success rate is larger than the optimal success rate and vice versa, since probability / rate is monotonically decreasing with respect to the step-size.
 {: .prompt-tip}
 
