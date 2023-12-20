@@ -211,11 +211,11 @@ Remarks
     - Fortunately,we are not interested in "all possible optimization problems".
 
 ### Introduction to EAs
-EAs taxonomy: genetic algortims (GA), evolutionary strategies (ES), evolutionary programming (EP), and genetic programming (GP).
+EAs taxonomy: genetic algortims (GA), evolution strategies (ES), evolutionary programming (EP), and genetic programming (GP).
 
 **GA vs ES**
 
-|Genetic Algorithms|Evoluntionary Strategies|
+|Genetic Algorithms|Evoluntion Strategies|
 |:---:|:---:|
 |Discrete representations|Mixed-integer capabilities|
 |Emphasis on crossover|Emphasis on mutation|
@@ -295,7 +295,7 @@ Assume $T (n)$ and $g(n)$ are both defined on $\mathbb{N}>0$ and take value in $
 
 ### Representation
 #### Genotype / Phenotype Space
-![Genotype space vs Phenotype space.](/assets/img/courses/ga-review-1.png){: .normal w="700"}
+![Genotype space vs Phenotype space.](/assets/img/courses/ga-review-1.png){: .normal w="600"}
 
 Remarks
 - Canonical GAs: individuals $$\mathbf{a}\in\{0, 1\}^l$$.
@@ -327,7 +327,7 @@ Key points
 
     Assume $u_i = -50, v_i = 50, l_x = 9$ bits used to represent $$\{0, 1, \dots, 511\}$$.
     
-    ![Mapping real numbers](/assets/img/courses/ga-review-2.png){: .normal w="700"}
+    ![Mapping real numbers](/assets/img/courses/ga-review-2.png){: .normal w="600"}
 
     - $100110100 \rightarrow 2^0 + 2^3 + 2^4 + 2^6 = 89 \rightarrow -50 + \frac{100}{511}\times 89 \approx -32.5831$.
     - $111011110 \rightarrow 2^0 + 2^1 + 2^2 + 2^4 + 2^5 + 2^6 + 2^7 = 247 \rightarrow -50 + \frac{100}{511}\times  \approx -1.6634$.
@@ -787,7 +787,7 @@ for the power of GAs.
     in block form, according to $$E_i = \sum_{j\in T} n_{ij}$$ where $$N = (n_{ij}) = (I - Q)^{-1}$$.
     
     - $T$: transient states.
-    - $I: the unity matrix.
+    - $I$: the unity matrix.
     - $Q$: an $(l - 1) \times (l - 1)$ matrix.
     - $E_i(t)$: expected time to absorption if started in state $i$.
 
@@ -841,8 +841,800 @@ $$
 - $\lambda - \nu - j$ realizations larger than $k$ ($j = 0, 1, \dots, \lambda - \nu)$.
 - $i + j + 1$ realizations equals $k$.
 
-## Evolutionary Strategies
+## Evolution Strategies
 ### Overview
+
+<pre id="es" class="pseudocode">
+\begin{algorithm}
+\caption{Evolution Strategy}
+\begin{algorithmic}
+\STATE $t \leftarrow 0$
+\STATE \texttt{Initialization}$(P(t))$
+\STATE \texttt{Evaluation}$(P(t))$
+\WHILE{Termination criteria not met}
+    \STATE $P(t)_{\text{temp}} \leftarrow$ \texttt{Recombination}$(P(t))$
+    \STATE $P(t)_{\text{temp}} \leftarrow$ \texttt{Mutation}$(P(t)_{\text{temp}})$
+    \STATE $P(t)_{\text{temp}} \leftarrow$ \texttt{Selection}$(P(t)_{\text{temp}} \cup Q)$
+    \COMMENT{$Q\in \{\emptyset, P(t)\}$}
+    \STATE \texttt{Evaluation}$(P(t))$
+    \STATE $P(t + 1) \leftarrow P_{\text{temp}}(t)$
+    \STATE $t \leftarrow t + 1$
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+**Main features**
+- Mostly real-valued search space $\mathbb{R}^n$. Also mixed-integer, discrete spaces.
+- Emphasis on mutation: expectation zero.
+- $\lambda \gg\mu $, creation of offspring surplus.
+- Self-adaptation of strategy parameters.
+- Recombination is applied to all individuals.
+- Mutation: normally $n$-dimensional distributed variations, applied to all individuals.
+- Selection: $(\mu + \lambda)$-selection (only accept improvements) or $(\mu, \lambda)$-selection (deterioration possible).
+
+### Representation
+- Simple ES with $1/5$ success rule: exogenous adaptation of step size $s$.
+
+    $$
+    \mathbf{a} = (x_1, \dots, x_n)
+    $$
+
+- Self-adaptive ES with single step size: one step-size $\sigma$ controls mutation of all search variables.
+
+    $$
+    \mathbf{a} = ((x_1, \dots, x_n), \sigma)
+    $$
+
+- Self-adaptive ES with individual step sizes: one individual $\sigma_i$ per $x_i$.
+
+    $$
+    \mathbf{a} = ((x_1, \dots, x_n), (\sigma_1, \dots, \sigma_n))
+    $$
+
+- Self-adaptive ES with correlated mutation:
+    - Individual step size $\sigma_i$.
+    - One correlation angle per coordinate pair.
+    - Mutation according to a multivariate Gaussian $\mathcal{N}(0, C)$.
+
+    $$
+    \mathbf{a} = ((x_1, \dots, x_n), (\sigma_1, \dots, \sigma_n),
+    (\alpha_1, \dots, \alpha_{n(n - 1) / 2}))
+    $$
+
+The number of parameters
+
+|Method|$n_{\sigma}$|$n_{\alpha}$|
+|:---:|:---:|:---:|
+|Standard mutation + one global step size|1|0|
+|Standard mutation + individual step sizes|$n$|0|
+|Correlated mutations|$n$|$n(n - 1)/2$|
+|General case (correlated mutations)|$1 \leq n_{\sigma} \leq n$|$\left(n - \frac{n_{\sigma}}{2}\right)(n_{\sigma} - 1)$|
+
+### Recombination
+#### Overview
+
+<pre id="es-recombination" class="pseudocode">
+\begin{algorithm}
+\caption{ES: Recombination}
+\begin{algorithmic}
+\FOR{$i = 1, \dots, \lambda$}
+\STATE Choose recombinant $r_1$ uniformly at random from parent population.
+\STATE Choose recombinant $r_2 <> r_1$ uniformly at random from parent population.
+\STATE Offspring $\leftarrow$ \texttt{RecombinationOperator}($r_1$, $r_2$)
+\STATE Add offspring to offspring population.
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+</pre>
+
+Remarks
+- Only for $\mu > 1$.
+- Directly after selection.
+- Iteratively generates $\lambda$ offspring.
+
+#### Operators
+**Discrete recombination**
+- Local: variable at position $i$ will be copied at random (uniformly distributed) from Parent 1 or Parent 2 (at position $i$).
+- Global: consider all parents, randomly copied from Parent $k$, $k = 1, \dots, \mu$.
+
+**Intermediate recombination**
+- Local: variable at position $i$ is arithmetic mean of Parent 1 and Parent 2 (at position $i$). 
+
+    $$
+    x_{\text{offspring}, i} = \frac{x_{r_1, i} + x_{r_2, i}}{2}
+    $$
+
+- Global: consider all parents, arithmetic mean of Parent $k$, $k = 1, \dots, \mu$.
+
+    $$
+    x_{\text{offspring}, i} = \frac{1}{\mu} \sum_{k = 1}^{\mu} x_{r_k, i}
+    $$
+
+### Mutation
+**Normal distribution**
+- Mutation makes use of normally distributed variations.
+- Probability density function:
+
+    $$
+    p(x) = \frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{(x - \mu)^2}{2 \sigma^2}}
+    $$
+
+- Expectation typically zero, $\mu = 0$.
+- Standard deviation $\sigma$ needs to be adapted.
+
+**Idea behind mutation**
+- Biological model: repair enzymes, mutator genes.
+- No deterministic control: strategy parameters evolve.
+- Indirect link between fitness and useful strategy parameter settings.
+- Hyperparameters $\sigma, \alpha$ are conceivable as an internal model of the local topology.
+
+#### One $\sigma$ Mutation
+- Self-adaptive ES with one step size:
+    - One $\sigma > 0$ controls mutation for all $x_i$.
+    - Mutate each search variable with a Gaussian perturbation:
+        1. Input: individual before mutation.
+
+            $$
+            \mathbf{a} = ((x_1, \dots, x_n), \sigma)
+            $$
+
+        2. Mutate the step size.
+
+            $$
+            \begin{align*}
+            \sigma' &= \sigma\exp(\tau_0 \cdot g)\\
+            g &\sim \mathcal{N}(0, 1)
+            \end{align*}
+            $$
+
+        3. Mutate search variables.
+
+            $$
+            \begin{align*}
+            x_i' &= x_i + \sigma' \cdot \varepsilon_{1, i},\quad \forall i\in\{1, \dots, n\}\\   
+            \varepsilon_{1, i} &\sim \mathcal{N}(0, 1)
+            \end{align*}
+            $$
+
+        4. Output: individual after mutation.
+
+            $$
+            \mathbf{a'} = ((x_1', \dots, x_n'), \sigma')
+            $$
+
+- $\tau_0$: learning rate.
+    - Affect the speed of the $\sigma$ adaptation.
+        - Bigger $\tau_0$: faster but less precise.
+        - Smaller $\tau_0$: slower but more precise.
+    - Recommended value by Schwefel:
+
+        $$
+        \tau_0 = \frac{1}{\sqrt{n}}
+        $$
+
+- The length of the mutation vector:
+
+    $$
+    \begin{align*}
+    \Vert \vec{x} - \vec{x}\Vert_2 &= \sqrt{\sum_{i = 1}^n(x'_i - x_i)^2}\\
+    &= \sqrt{\sum_{i = 1}^n \sigma'^2Z_i^2}\\
+    &= \sigma'\sqrt{\sum_{i = 1}^n Z_i^2}\\
+    &= \sigma' \gamma
+    \end{align*}    
+    $$
+
+    $Z_i\sim \mathcal{N}(0, 1) \Rightarrow \sum_{i = 1}^n Z_i^2\sim \chi^2(n) \Rightarrow \gamma = \sqrt{\sum_{i = 1}^n Z_i^2}\sim \chi(n)$.
+
+    > **$\chi^2(n)$ distribution**
+    > - Mean: $n$.
+    > - Variance: $2n$.
+    >
+    > **$\chi(n)$ distribution**
+    > - Mean:
+    > 
+    >   $$
+    >   \mu = \frac{\sqrt{2} \Gamma\left(\frac{1}{2}(n + 1)\right)}{\Gamma\left(\frac{1}{2}n\right)}
+    >   $$
+    >
+    > - Variance:
+    >   
+    >   $$
+    >   \sigma^2 = \frac{2\left[\Gamma\left(\frac{1}{2}n\right) \Gamma\left(1 + \frac{1}{2}n\right) - \Gamma^2\left(\frac{1}{2}(n + 1)\right)\right]}{\Gamma^2\left(\frac{1}{2}n\right)}
+    >   $$
+    >
+    > - $\Gamma$ function:
+    >    - $\Gamma(z) = \int_{0}^\infty t^{z - 1}e^{-t}dt$.
+    >    - $\Gamma(z + 1) = z\Gamma(z)$.
+    >    - $\Gamma(1) = 1, \Gamma\left(\frac{1}{2}\right) = \sqrt{\pi}$.
+    >
+    {: .prompt-info }
+
+    $$
+    \begin{align*}    
+    E[\Vert \vec{x}' - \vec{x} \Vert_2] &= E[\sigma'\gamma]\\
+    &= \sigma'E[\gamma]\\
+    Var[\Vert \vec{x}' - \vec{x} \Vert_2] &= Var[\sigma'\gamma]\\
+    &= \sigma'^2 Var[\gamma]
+    \end{align*}    
+    $$
+
+    - The mutation procedure is un-bias and isotropic.
+- Advantages.
+    - Simple adaptation mechanism.
+    - Self-adaptation usually fast and precise.
+- Disadvantages.
+    - Bad adaptation in case of complicated contour lines.
+    - Bad adaptation in case of very differently scaled object variables.
+
+#### Individual $\sigma_i$ Mutation
+- Self-adaptive ES with individual step sizes: one $\sigma_i$ per $x_i$.
+    1. Input: individual before mutation.
+
+        $$
+        \mathbf{a} = ((x_1, \dots, x_n), (\sigma_1, \dots, \sigma_n))
+        $$
+
+    2. Sample a global perturbation.
+
+        $$
+        g\sim \mathcal{N}(0, 1)
+        $$
+
+    3. Mutate individual step sizes.
+
+        $$
+        \begin{align*}
+        \sigma'_i &= \sigma_i\exp(\tau'g + \tau \varepsilon_{1, i}),\quad i\in\{1,\dots, n\} \\
+        \varepsilon_{1, i}&\sim\mathcal{N}(0, 1)
+        \end{align*}
+        $$
+
+    4. Mutate search variables.
+
+        $$
+        \begin{align*}
+        x_i' &= x_i + \sigma_i'\cdot \varepsilon_{2, i},\quad i\in\{1, \dots, n\}\\
+        \varepsilon_{2, i}&\sim\mathcal{N}(0, 1)
+        \end{align*}
+        $$    
+
+    5. Output: individual after mutation.
+
+        $$
+        \mathbf{a}' = ((x_1', \dots, x_n'), (\sigma_1', \dots, \sigma_n'))
+        $$
+
+- $\tau, \tau'$ are learning rates.
+    - $\tau'$: global learning rate. $$\mathcal{N}(0, \tau'^2)$$ has only one realization.
+    - $\tau$: local learning rate. $$\mathcal{N}(0, \tau^2)$$ has $n$ realizations.
+    - Recommended values by Schwefel:
+
+        $$
+        \tau' = \frac{1}{\sqrt{2n}},\quad \tau = \frac{1}{\sqrt{2\sqrt{n}}}
+        $$
+
+- The mutation vector elements are defined as:
+
+    $$
+    \begin{align*}
+    x'_i - x_i &= \sigma'_iZ_i\\
+    \frac{x'_i - x_i}{\sigma'} &= Z_i\\
+    \sum_{i = 1}^n \frac{(x'_i - x_i)^2}{(\sigma'_2)^2} &= \sum_{i = 1}^n (Z_i)^2\\
+    E\left[\sum_{i = 1}^n \frac{(x'_i - x_i)^2}{(\sigma'_2)^2}\right] &= n
+    \end{align*}
+    $$
+
+    - The new solutions after mutation are located on an ellipsoid around the initial point. In 2 dimensions, we have:
+
+        $$
+        \frac{(x'_1 - x_1)^2}{(\sigma'_1)^2} + \frac{(x'_2 - x_2)^2}{(\sigma'_2)^2} = 2
+        $$
+
+- Advantages.
+    - Individual scaling of object variables.
+    - Increased global convergence reliability.
+- Disadvantages.
+    - Slower convergence due to increased learning effort.
+    - No rotation of coordinate system possible, which is required for badly conditioned objective function.
+
+#### Correlated Mutations
+- Self-adaptive ES with correlated mutations:
+    - Individual step sizes.
+    - One rotation angle for each pair of coordinates.
+    - Mutation according to covariance matrix $\mathcal{N}(0, C)$.
+
+        1. Input: individual before mutation.
+
+            $$
+            \mathbf{a} = ((x_1, \dots, x_n), (\sigma_1, \dots, \sigma_n), (\alpha_1, \dots, \alpha_{n(n - 1)/2}))
+            $$
+
+        2. Mutation of individual step sizes.
+
+            $$
+            \begin{align*}
+            \sigma'_i &= \sigma \cdot\exp(\tau'g + \tau\varepsilon_{1, i}),\quad i\in\{1, \dots, n\}\\
+            g&\sim \mathcal{N}(0, 1)\\
+            \varepsilon_{1, i}&\sim \mathcal{N}(0, 1)
+            \end{align*}
+            $$
+
+        3. Mutation of rotation angles.
+
+            $$
+            \begin{align*}
+            \alpha'_i &= \alpha_i + \beta\varepsilon_{2, i}\\
+            \varepsilon_{2, i} &\sim \mathcal{N}(0, 1)
+            \end{align*}
+            $$
+
+        4. Mutation of decision variables.
+
+            $$
+            x'_i = x_i + \mathcal{N}(0, C')
+            $$
+
+        5. Output: individual after mutation.
+
+            $$
+            \mathbf{a}' = ((x'_1, \dots, x'_n), (\sigma'_1, \dots, \sigma'_n), (\alpha'_1, \dots, \alpha'_{n(n - 1)/2}))
+            $$
+
+- How to create $\mathcal{N}(0, C')$?
+    - Multiplication of uncorrelated mutation vector with $n(n - 1) / 2$ rotational matrices.
+
+        $$
+        \begin{align*}
+            \mathbf{C}^{\frac{1}{2}} & =\left(\prod_{i=1}^{n-1} \prod_{j=i+1}^n R\left(\alpha_{i j}\right)\right)\left[\begin{array}{lll}
+            \sigma_1 & & \\
+            & \ddots & \\
+            & & \sigma_n
+            \end{array}\right] \\
+            \mathbf{C} & =\mathbf{C}^{\frac{1}{2}} \mathbf{C}^{\frac{1}{2}}
+        \end{align*}
+        $$
+
+    - Structure of rotation matrix.
+
+        $$
+        R(\alpha_{ij}) = 
+        \begin{pmatrix}
+        1 &   &   &   &   &   &   & 0\\
+          & 1 &   &   &   &   & 0 &  \\
+          &   &\cos(\alpha_{ij}) & & & -\sin(\alpha_{ij}) & & \\
+          &   &   & 1 &   &   &   &   \\
+          &   &   &   & 1 &   &   &   \\
+          &   &\sin(\alpha_{ij}) & & & \cos(\alpha_{ij}) & & \\
+          & 0 &   &   &   &   & 1 &  \\
+        0 &   &   &   &   &   &   & 1\\
+        \end{pmatrix}
+        $$
+    
+    - $C$ is the covariance matrix: $C = \text{Cov}(X, X) = E[(X - E[X])(X - E[X])^T]$.
+
+
+        $$
+        f_X(\mathbf{x}) = \frac{1}{(2\pi)^{\frac{n}{2}}\vert C\vert^{\frac{1}{2}}}\exp\left( -\frac{1}{2}(\mathbf{x} - \mathbf{\mu})^TC^{-1}(\mathbf{x} - \mathbf{\mu}) \right)
+        $$
+
+- $\tau, \tau', \beta$ are learning rates.
+    - $\tau, \tau'$ are as before.
+    - $\beta = \frac{\pi}{36}\approx 0.0873$, corresponding to 5 degrees.
+    - Out of boundary correction:
+
+        $$
+        \vert \alpha'_j\vert > \pi \Rightarrow \alpha'_j \leftarrow \alpha'_j - 2\pi \cdot \text{sign}(\alpha'_j)
+        $$
+
+- Advantages.
+    - Individual scaling of object variables.
+    - Rotation of coordinate system possible.
+    - Increased global convergence reliability.
+- Disavantages.
+    - Much slower convergence.
+    - Effort for mutations scales quadratically.
+    - Self-adaptation very inefficient.
+
+### Selection
+#### Operators
+**$(\mu + \lambda)$ Selection**
+- $\mu$ parents produce $\lambda$ pffspring by recombination (optional) and mutation (necessary).
+- $\mu + \lambda$ individuals will be considered together.
+- Deterministic selection: the $\mu$ best out of $\mu + \lambda$ will be selected.
+- This method guarantees monotonicity: deteriorations will never be accepted.
+
+> Both $\mu > \lambda$ and $\frac{\mu}{\lambda} = 1$ are reasonable.
+{: .prompt-tip}
+
+**$(\mu , \lambda)$ Selection**
+- $\mu$ parents produce $\lambda \gg \mu$ pffspring by recombination (optional) and mutation (necessary).
+- $\lambda$ offspring will be considered alone.
+- Deterministic selection: the $\mu$ best out of $\lambda$ offspring will be selected.
+- This method doesn’t guarantee monotonicity.
+    - Deteriorations are possible.
+    - The best objective function value in generation $t + 1$ may be worse than the best in generation $t$.
+
+#### Selective Pressure
+Measure the selective pressure: takeover time $\tau^*$.
+- The number of generations until repeated application of selection completely fills the population with copies of the initially best individual.
+
+Example 1: $(\mu, \lambda)$ selection. $\tau^* = \frac{\ln\lambda}{\ln\lambda/\mu}$.
+
+**Proof**\
+Suppose that we run an ES with $(\mu, \lambda)$ selection without crossover and mutation. Let $x^*$ be the best solution in generation $t = 0$. At time $t = 0$ there is one instance of $x^∗$ in the population (denoted by $N_0 = 1$). We can derive the general expression for $N_t$
+
+$$
+\begin{align*}
+N_0 & =1 \\
+N_1 & =N_0 \cdot \frac{\lambda}{\mu} \\
+N_2 & =N_1 \cdot \frac{\lambda}{\mu}=\left(N_0 \cdot \frac{\lambda}{\mu}\right) \cdot \frac{\lambda}{\mu} \\
+\vdots &\qquad \vdots \\
+N_t & =\left(\frac{\lambda}{\mu}\right)^t .
+\end{align*}
+$$
+
+Calculate the take overtime:
+
+$$
+\begin{align*}
+    \lambda &= \left(\frac{\lambda}{\mu}\right)^t\\
+    t & =\log _{\frac{\lambda}{\mu}} \lambda \\
+    & =\frac{\log \lambda}{\log \frac{\lambda}{\mu}} \\
+    & =\frac{\ln \lambda}{\ln \frac{\lambda}{\mu}}
+\end{align*}
+$$
+
+Example 2: Proportional selection in genetic algorithms. $\tau^* \approx \lambda\ln\lambda$.
+
+> Why is a normal distribution used in ES for continuous problems?
+> - Because it can maximize the unbiasedness.
+> - Because of its infinite support.
+> - Because the total probabilities of increasing and decreasing a decision variable are the same.
+{: .prompt-tip}
+
+### Self-adaptation
+#### Concepts
+- No deterministic step size control. Rather: evolution of step sizes.
+- Intuitions.
+    - Indirect coupling: step sizes – progress.
+    - Good step sizes improve individuals. Bad ones make them worse. This yields an indirect step size selection.
+- Without exogeneous control.
+    - By recombining / mutating the strategy parameters.
+    - By exploiting the implicit link between fitness and useful internal models.
+
+**Conditions**
+- Found by experiments.
+- Generation of an offspring surplus, $\lambda > \mu$.
+- $(\mu, \lambda)$ selection to guarantee extinction of misadapted individuals.
+- A not too strong selective pressure, e.g., $(15,100)$ where $\lambda/\mu \approx 7$.
+- Certainly, $\mu > 1$ necessary.
+- Recombination also on strategy parameters (especially: intermediary recombination).
+
+#### Empirical Test Design
+- Simple functions with predictable optimal $\sigma_i$ values. Check whether it works.
+- Compare with optimal behavior (if known).
+- Investigate impact of selection.
+
+**Sphere model**
+- Test function: one common step size, $n_\sigma = 1$:
+
+    $$
+    f(\mathbf{x}) = \sum_{i = 1}^n x_i^2
+    $$
+
+- $(1, 10)$-ES vs $(1 + 10)$-ES: the "non-greedy" $(1,10)$-ES performs better.
+    - Progress: $P_g = \log\sqrt{\frac{f_{\min}(0)}{f_{\min}(g)}}$.
+    - Counterintuitive: elitist is a bad choice.
+        - Misadapted $\sigma$ might survive in an elitist strategy.
+        - Forgetting is necessary to prevent stagnation periods.
+- Test: need to know optimal step size. Only for very simple, convex objective functions.
+- Dynamic sphere model: optimum locations changes occasionally.
+- Summary of self-adaptation of one step size.
+    - Perfect adaptation.
+    - Learning time for back adaptation proportional $n$.
+    - Proofs only for convex functions.
+
+**Individual step sizes**
+- Test function: appropriate scaling of variables, $n_\sigma = n$. Ellipsoid model:
+
+    $$
+    f(\mathbf{x}) = \sum_{i = 1}^n ix_i^2
+    $$
+
+- Collective learning.
+    - Individuals exchange information about their "internal models" by recombination.
+    - A $(\mu, 100)$-ES with $$\mu\in\{1, \dots, 30\}$$.    
+        - $n_\sigma = n = 30$ and the optimal $\sigma_i\propto 1/\sqrt{i}$ is known for ellipsoid model.
+        - Optimum setting of $\sigma_i$: $\mu = 1$ is best.
+
+**Covariances**
+- Test function: a metric, $$n_{\sigma} = n, n_\alpha = n(n - 1) / 2$$.
+
+    $$
+    f(\mathbf{x}) = \sum_{i = 1}^n\left( \sum_{j = 1}^i x_j \right)^2
+    $$
+
+- Recombination.
+    - Intermediary on $x_i$.
+    - Global intermediary on $\sigma_i$.
+    - None on $\alpha_i$ (covariances).
+- Covariances increase effectiveness in case of rotated coordinate systems.
+
+### Convergence Velocity: $(1 + 1)$-ES
+- Definition of convergence velocity: expectation of the distance towards the optimum covered per generation.
+
+    $$
+    \begin{align*}
+    \varphi &= E[\Vert \mathbf{x}^* - \mathbf{x}_t\Vert - \Vert \mathbf{x}^* - \mathbf{x}_{t + 1}\Vert]\\
+    &= E[\vert f(\mathbf{x}^*) - f(\mathbf{x}_t) \vert - \vert f(\mathbf{x}^*) - f(\mathbf{x}_{t + 1}) \vert]
+    \end{align*}
+    $$
+
+- Linear model. Assume $Z'_1\sim \mathcal{N}(0, \sigma^2), Z_1\sim \mathcal{N}(0, 1)$.
+
+    ![Linear Model](/assets/img/courses/ga-review-3.png){: .normal w="600"}
+
+    $$
+    \begin{align*}
+    \varphi &= E[Z'_1]\\
+    &= \sigma E[Z_1]\\
+    &= \sigma \int_{0}^{\infty} z_1 \phi(z_1)dz_1\\
+    &= \frac{\sigma}{\sqrt{2\pi}} \int_{0}^{\infty} z_1 \exp\left(-\frac{z_1^2}{2}\right) dz_1\\
+    &= \frac{\sigma}{\sqrt{2\pi}}
+    \end{align*}
+    $$
+
+    - Success probability: $1/2$.
+
+- Corridor model: $f(\mathbf{x}) = c\cdot x_1,\quad -b \leq x_2, \dots, x_n\leq b$.
+
+    ![Corridor Model](/assets/img/courses/ga-review-4.png){: .normal w="400"}
+
+    - Results.
+        - Convergence velocity.
+
+            $$
+            \varphi = \frac{\sigma}{\sqrt{2\pi}} \left(1 - \frac{\sigma}{b\sqrt{2\pi}} \right)^{n - 1}
+            $$
+
+        - Normalized convergence velocity, $\varphi' = \frac{\varphi n}{b}, \sigma' = \frac{\sigma n}{b}$.
+
+            $$
+            \varphi'\approx \frac{\sigma'}{\sqrt{2\pi}}\exp\left(-\frac{\sigma'}{\sqrt{2\pi}} \right),\quad \text{for } n\gg 1
+            $$
+        
+        - Success probability.
+
+            $$
+            \omega_e\approx \frac{1}{2}\exp\left(-\frac{\sigma'}{\sqrt{2\pi}} \right),\quad \text{for }n\gg 1
+            $$
+        
+    - Corollaries.
+        - Optimal standard deviation: $\sigma'_{\text{opt}} = \sqrt{2\pi}$.
+        - Maximum convergence velocity: $\varphi'_{\max} = \frac{1}{e}$.
+        - Optimal success probability: $\omega_{\text{opt}} = \frac{1}{2e}\approx 0.1839$.
+- Sphere model: $$f(\mathbf{x}) = \sum_{i = 1}^n x_i^2 = r^2$$.
+
+    ![Sphere Model](/assets/img/courses/ga-review-5.png){: .normal w="400"}
+
+    - By geometry:
+
+        $$
+        \begin{align*}
+        z'^2 + x^2 &= l^2\\
+        &= x^2 + (R - z')^2\\
+        &= r^2\\
+        &= l^2 + R^2 - 2Rz'
+        \end{align*}
+        $$
+
+        - Note that the offspring originates in the perimeter of the parent’s circle.
+        - The resulting offspring’s mutations are considered degenerative if they are outside the parent’s circumference. That is only the part of the offspring’s circle that is within the parent’s circle is "good".
+        - Thus, the lower bound of good improvements is when the mutation falls on the intersection between the circles.
+    - Results.
+        - Convergence velocity.
+
+            $$
+            \begin{align*}
+            \varphi & =E\left(R^2-r^2\right)=E\left(2 R Z^{\prime}-l^2\right) \\
+            & =E\left(2 R \sigma Z-\sigma^2 n\right) \\
+            & =\cdots \\
+            & =2 R \sigma \int_{z_{\min }}^{\infty} z \phi(z) d z-\sigma^2 n \int_{z_{\min }}^{\infty} \phi(z) d z \\
+            & =\frac{2 R \sigma}{\sqrt{2 \pi}} \exp \left(-\frac{\sigma^2 n^2}{8 R^2}\right)-\sigma^2 n\left(1-\Phi\left(\frac{\sigma n}{2 R}\right)\right)
+            \end{align*}
+            $$
+
+        - Success probability: $\omega: 1 - \Phi(\sigma'/2)$.
+    - Corollaries.
+        - Optimal standard deviation: $\sigma'\approx 1.224$.
+        - Maximum convergence velocity: $\varphi'\approx 0.2025$.
+        - Optimal success probability: $\omega_{e_{\text{opt}}}\approx 0.270$.
+- $1/5$ success rule.
+    - $$\omega_{e_{\text{opt}}}$$ should be about $1/5$. If $\omega_e$ (measured during execution of the $(1 + 1)$-ES) is larger than $1/5$, increase $\sigma$. If it is smaller than $1/5$, decrease $\sigma$.
+
+        $$
+        \sigma(t + n) = 
+        \begin{cases}
+        \sigma(t) \cdot k,\quad &\omega_e < 1/5,\\
+        \sigma(t) / k,\quad &\omega_e \geq 1/5,\\
+        \end{cases}
+        $$
+
+        The empirical success $\omega_e$ should be around $1/5$. If it is much higher, it means that the step size $\sigma$ used is too small. Similarly, if it’s lower than $1/5$ the step size $\sigma$ is too large.
+    - Recommended choice of $k$: $k\approx 0.82$.
+    - Plot of optimal progress against the success probability $(1 - \Phi(\sigma'/2))$. The small window between the intersections (marked in red) is where we find the optimal step sizes $\sigma$. The empircial success should be around $1/5$, if it is higher or lower it is an indication that the step size is too small / large respectively (in yellow in the graph).
+
+    ![1/5 Rule](/assets/img/courses/ga-review-6.png){: .normal w="500"}
+
+> **Key points about $1/5$ success rule**
+> 1. Theoretical success probability / rate is monotonically decreasing with respect to the step-size. 
+> 2. Theoretical success probability can be easily measured empirically by counting the number of successful mutations over a some period. 
+> 3. The theoretical progress rate is a unimodal (with a single peak) function of the step-size. 
+> 4. We can compute the optimal step-size at the peak value of progress rate curve, and calculate the optimal success rate, which is the success rate at the optimal step-size, which is about $1/5$.
+> 5. In practice, we increase the step-size if the measured success rate is larger than the optimal success rate and vice versa, since probability / rate is monotonically decreasing with respect to the step-size.
+{: .prompt-tip}
+
+- Disadvantages of $(1 + 1)$-ES.
+    - Certainly a more local search method.
+    - $1/5$ success rule may fail.
+
+> **Log-normal distribution**
+> - pdf:
+>   $$
+>   f_X(x) = \frac{1}{\sigma x\sqrt{2\pi}}\exp\left(-\frac{(\ln x - \mu)^2}{2\sigma^2}\right)
+>   $$
+> - $\mu = 0, \sigma = 1$
+> - Why is a log-normal distribution used to update step size in ES?
+>   - A log-normal distribution can guarantee that the updated step size is a positive number.
+>   - A log-normal distribution can guarantee the same probability to increase and decrease a step size.
+{: .prompt-info}
+
+## Benchmarking and Empirical Analysis
+### Benchmarking
+- A problem class of interest: domain, single-/multi-objective, black/white/grey-box, dimensionality.
+- A set of test functions: $$\mathcal{F} = \{f_1, f_2, \dots\}$$.
+    - Universality: the larger, the better.
+    - Test functions should not be similar: explorative landscape analysis.
+- A set of optimization algorithms: $$\mathcal{A} = \{A_1, A_2, \dots\}$$.
+- Performance measure / indicators.
+    - Speed: running time / the number of function evaluations (integer-valued random variables).
+
+        $$
+        T(A, f, d, v) \in [1,\dots, B]\cup \{\infty\}
+        $$
+
+    - Quality: function values (real-valued variables).
+
+        $$
+        V(A, f, d, v)\in\mathbb{R}
+        $$
+
+    - Interested in the distribution of $T$ and $V$.
+- Execution: run each pair of $(A, f, d)$ for several times independently.
+    - Estimate the empirical distribution.
+
+        $$
+        \begin{align*}
+        \{v_1, v_2, \dots, v_r\} \rightarrow \hat{F}_V\\
+        \{t_1, t_2, \dots, t_r\} \rightarrow \hat{F}_T\\
+        \end{align*}        
+        $$
+
+    - Stopping criteria: a budget on the function evaluation, a target function value to hit, etc.
+    - The behavior of the optimization algorithm is usually stochastic.
+    - Use enough data / evidence to determine the number of runs / repetitions $r$.
+
+### Performance Analysis
+**Empirical behavior**
+- Trajectory in the search space.
+- Evolution of objective values.
+
+#### Performance Measure
+Stochastic behavior $\rightarrow$ statistical characteristics.
+
+**Convergence rate**
+
+$$
+\begin{align*}
+&\lim_{n\rightarrow \infty} \frac{\Delta f_n}{T_n}\\
+=&\lim_{n\rightarrow \infty} \frac{\vert f_{n}^{\text{best}} - f^* \vert}{\sum_{i = 1}^n\#\text{EVAL}_i}\\ 
+\end{align*}
+$$
+
+- Asymptotic behavior.
+- Not very practical.
+    - Requires lots of runs.
+    - Not always linear.
+    - Not always constant.
+
+**Empirical performance**
+
+![Empirical Performance](/assets/img/courses/ga-review-7.png){: .normal w="500"}
+
+- Measure cost: fixed-target running time.
+    - Horizontal perspective.
+    - Recommended in the benchmarking.
+    - Advantage due to quantitative comparison.
+    
+        $$
+        \begin{align*}
+        T(f_{\text{target}}) &\in \mathbb{N}_{>0} \Rightarrow \{t_1(f_{\text{target}}), \dots, t_r(f_{\text{target}})\}\\
+        N_{\text{success}} &= \sum_{i = 1}^r \mathbf{1}(t_i(f_{\text{target}}) < \infty)
+        \end{align*}
+        $$
+
+- Measure quality: fixed-budget objective value.
+    - Vertical perspective.
+    - Only for qualitative comparison.
+    - Directly applicable for runs with very small number of function evaluations.
+
+
+        $$
+        V(b) \in \mathbb{R}, b<B \Rightarrow \{v_1(b), \dots, v_r(b)\}
+        $$
+
+**Descriptive statistics**
+- Sample mean: underestimates the mean of running times when infinite budget is allowed.
+
+    $$
+    \begin{align*}
+    \bar{T}(v) &= \frac{1}{r}\min\{t_i(A, f, d, v), B\},\\
+    \bar{V}(v) &= \frac{1}{r}\sum_{i = 1}^rv_i(A, f, d, t)
+    \end{align*}
+    $$
+
+- Sample quantiles.
+
+    $$
+    \frac{\{t_i\leq Q_{m\%} \}}{r} = m\%
+    $$
+
+- Empirical success rate.
+
+    $$
+    \widehat{p}_s=\sum_{i=1}^r \mathbb{1}\left(t_i(A, f, d, v)<\infty\right) / r \stackrel{P}{\longrightarrow} \mathrm{E}[\mathbb{1}(T(A, f, d, v)<\infty)]
+    $$
+
+**Expected running time (ERT)**\
+Unbiased estimator the mean running time.
+
+$$
+\operatorname{ERT}(A, f, d, v)=\frac{\sum_{i=1}^r \min \left\{t_i(A, f, d, v), B\right\}}{\sum_{i=1}^r \mathbb{1}\left(t_i(A, f, d, v)<\infty\right)} .
+$$
+
+Example
+- Algorithm A: 40 runs, 2000 evaluations on average, 75% success rate.
+- Algorithm B: 40 runs, 3000 evaluations on average, 90% success rate.
+- ERT.
+    - Algorithm A: $\frac{2000}{0.75} \approx 2666.7$.
+    - Algorithm B: $\frac{3000}{0.9} \approx 3333.3$.
+
+**Empirical cumulative distribution functions (ECDFs)**
+- Taking the running time for example.
+
+    $$
+    \widehat{F}_T(t ; A, f, d, v)=\frac{\text { the number of running time values } \leq t}{r}=\frac{1}{r} \sum_{i=1}^r \mathbb{1}\left(t_i(A, f, d, v) \leq t\right) \text {. }
+    $$
+
+- ECDF converges to the "true" distribution function.
+
+    $$
+    \sqrt{r}\left(\widehat{F}_T(t)-F_T(t)\right) \stackrel{d}{\longrightarrow} \mathcal{N}\left(0, F_T(t)\left(1-F_T(t)\right)\right)
+    $$
+
+- Aggregate ECDFs.
+    - Over multiple targets.
+
+        $$
+        \widehat{F}_T(t ; A, f, d, \mathcal{V})=\frac{1}{r|\mathcal{V}|} \sum_{v \in \mathcal{V}} \sum_{i=1}^r \mathbb{1}\left(t_i(A, f, d, v) \leq t\right)
+        $$
+
+    - Over multiple functions.
+
+        $$
+        \widehat{F}_T(t ; A, \mathcal{F}, d, \mathcal{V})=\frac{1}{r|\mathcal{V} \| \mathcal{F}|} \sum_{f \in \mathcal{F}} \sum_{v \in \mathcal{V}} \sum_{i=1}^r \mathbb{1}\left(t_i(A, f, d, v) \leq t\right)
+        $$
 
 ## References
 1. Slides of Evolutionary Algorithms course, 2023 Fall, Leiden University.
@@ -853,3 +1645,5 @@ $$
 6. [Crossover (genetic algorithm).](https://www.wikiwand.com/en/Crossover_(genetic_algorithm))
 7. [Partially Mapped Crossover in Genetic Algorithms.](https://www.baeldung.com/cs/ga-pmx-operator)
 8. [Gray code.](https://encyclopediaofmath.org/wiki/Gray_code)
+9. [Chi Distribution.](https://mathworld.wolfram.com/ChiDistribution.html)
+10. [Gamma function.](https://www.wikiwand.com/en/Gamma_function)
