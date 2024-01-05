@@ -88,7 +88,7 @@ Pr(k > 2^n) &= 1 - \sum_{k = 1}^{2^n} p_k = \left(1 - 2^{-n}\right)^{2^n}
 \end{align*}
 $$
 
-Let $c = 2^n$. Use the limit $\lim_{x\rightarrow \infty}\ln \left(1 - \frac{1}{x} \right) = -1$,
+Let $c = 2^n$. Use the limit $\lim_{x\rightarrow \infty}\ln \left(1 - \frac{1}{x} \right)^n = -1$,
 
 $$
 Pr(k > 2^n) = \exp\left[\ln\left(1 - \frac{1}{c}\right)^c \right] \rightarrow e^{-1} \approx 0.3679
