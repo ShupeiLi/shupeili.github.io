@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "广度优先遍历树的时间复杂度分析"
+title: "辗转相除法"
 categories: algorithms
 tags: algorithms
 
