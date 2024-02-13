@@ -53,10 +53,10 @@ $$
 where $$\vert y \vert$$ is the length of $$y$$. $$r$$ is the effective reference corpus length, that is, 
 
 $$
-r := \sum_{i = 1}^M |y^(i, j)|
+r := \sum_{i = 1}^M |y^{(i, j)}|
 $$
 
-where $$y^(i, j) = \text{argmin}_{y\in S_i}\vert \vert y\vert - \vert\hat{y}^{(i)}\vert\vert$$, that is, the sentence from $$S_{i}$$ whose length is as close to $$\vert \hat{y}^{(i)}\vert$$ as possible.
+where $$y^{(i, j)} = \text{argmin}_{y\in S_i}\vert \vert y\vert - \vert\hat{y}^{(i)}\vert\vert$$, that is, the sentence from $$S_{i}$$ whose length is as close to $$\vert \hat{y}^{(i)}\vert$$ as possible.
 
 **Final definition of BLEU**
 
@@ -76,21 +76,21 @@ There are typically two common methods to calculate "distinct-n" metrics, such a
 
 1. Sample-Based Distinct-n (intra-distinct): calculate distinct-n metrics on individual samples of generated text and then average the results. It's a more fine-grained assessment, measuring diversity at the text sample level. Each generated sample has its distinct-n score, and you take the average over all samples.
 
-$$
-\begin{align*}
-\text{D1_sample} &= \frac{\text{count of unique n-grams in sample}}{\text{total n-grams in sample}}\\
-\text{D1} &= \frac{\text{sum of D1_sample for all samples}}{\text{number of samples}}
-\end{align*}
-$$
+    $$
+    \begin{align*}
+    \text{D1_sample} &= \frac{\text{count of unique n-grams in sample}}{\text{total n-grams in sample}}\\
+    \text{D1} &= \frac{\text{sum of D1_sample for all samples}}{\text{number of samples}}
+    \end{align*}
+    $$
 
 2. System-Level Distinct-n (inter-distinct): treat the entire generated dataset as a single unit and calculate distinct-n metrics on the combined dataset. This approach provides a system-level measure of diversity and is typically easier to calculate.
 
-$$
-\begin{align*}
-\text{D1_system} &= \frac{\text{count of unique n-grams in the entire dataset}}{\text{total n-grams in the entire dataset}}\\
-\text{D2_system} &= \frac{\text{count of unique n-gram pairs in the entire dataset}}{\text{total n-gram pairs in the entire dataset}}
-\end{align*}
-$$
+    $$
+    \begin{align*}
+    \text{D1_system} &= \frac{\text{count of unique n-grams in the entire dataset}}{\text{total n-grams in the entire dataset}}\\
+    \text{D2_system} &= \frac{\text{count of unique n-gram pairs in the entire dataset}}{\text{total n-gram pairs in the entire dataset}}
+    \end{align*}
+    $$
 
 ## References
 1. [Hugging face documents: PPL](https://huggingface.co/docs/transformers/perplexity)
