@@ -1,0 +1,103 @@
+<div>
+    <div>
+        <p> 力扣春招百题: </p>
+        <div class="progress">
+            <div class="bar" id="lc-progress"></div>
+        </div>
+        <br/>
+    </div>
+    <div>
+        <p> 基础算法总结: </p>
+        <div class="progress">
+            <div class="bar" id="algo-summary-progress"></div>
+        </div>
+        <br/>
+    </div>
+    <div>
+        <p> 小林图解操作系统: </p>
+        <div class="progress">
+            <div class="bar" id="xiaolin-os-progress"></div>
+        </div>
+        <br/>
+    </div>
+    <div>
+        <p> MySQL 45 讲: </p>
+        <div class="progress">
+            <div class="bar" id="mysql-45-progress"></div>
+        </div>
+        <br/>
+    </div>
+    <div>
+        <p> JavaWeb Tutorial Videos: </p>
+        <div class="progress">
+            <div class="bar" id="javaweb-video-progress"></div>
+        </div>
+        <br/>
+    </div>
+</div>
+
+<style>
+div.progress {
+  width: 90%;
+  height: 30px;
+  background-color: #E7E9EB;
+}
+
+div.bar {
+  height: 30px;
+  background-color: #157FD1;
+  text-align: center; 
+  font-size: large;
+  line-height: 30px; 
+  color: white;
+}
+</style>
+
+<script>
+function setWidth(progressObj) {
+    var elem = document.getElementById(progressObj.id);
+    var percentage = Math.round(progressObj.cur / progressObj.total * 100);
+    elem.style.width = percentage + '%';
+    elem.innerHTML = percentage + '%';
+}
+
+// 力扣春招百题
+const lc = {
+    cur: 32,
+    total: 100,
+    id: "lc-progress"
+}
+setWidth(lc);
+
+// 算法总结
+const algo = {
+    cur: 0,
+    total: 20,
+    id: "algo-summary-progress"
+}
+setWidth(algo);
+
+// 小林图解操作系统
+const xiaolin = {
+    cur: 0,
+    total: 32,
+    id: "xiaolin-os-progress"
+}
+setWidth(xiaolin);
+
+// MySQL 45
+const mysql = {
+    cur: 0,
+    total: 45,
+    id: "mysql-45-progress"
+}
+setWidth(mysql);
+
+// JavaWeb
+const javaweb = {
+    cur: 155,
+    total: 200,
+    id: "javaweb-video-progress"
+}
+setWidth(javaweb);
+</script>

@@ -29,7 +29,7 @@ class GCD {
 // 一行搞定
 class GCD {
     public int gcd(int a, int b) {
-		b == 0 ? a : gcd(b, a % b);
+        return b == 0 ? a : gcd(b, a % b);
     }
 }
 ```
