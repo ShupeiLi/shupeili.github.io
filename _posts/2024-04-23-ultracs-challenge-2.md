@@ -32,11 +32,13 @@ pin: true
   - [一刷 CSAPP](#一刷-csapp)
 - [数据库](#数据库)
   - [MySQL 45 讲](#mysql-45-讲)
+  - [MySQL 是怎样运行的](#mysql-是怎样运行的)
 - [Java](#java)
   - [JavaWeb Tutorial Videos](#javaweb-tutorial-videos)
   - [SpringCloud Tutorial Videos](#springcloud-tutorial-videos)
   - [Java 8 实战](#java-8-实战)
 - [实用技术](#实用技术)
+  - [Shell Tutorial Videos](#shell-tutorial-videos)
   - [Vim 实用技巧](#vim-实用技巧)
 - [更新日志](#更新日志)
   - [V 1.1.0: 路线图 - 知识总结博客系列规划](#v-110-路线图---知识总结博客系列规划)
@@ -64,7 +66,7 @@ pin: true
 
 ## 进度追踪
 
-更新：2023-04-27
+更新：2023-05-05
 
 {% include progress-bar.html %}
 
@@ -74,6 +76,7 @@ pin: true
 - [小林图解操作系统](#小林图解操作系统)
 - [MySQL 45 讲](#mysql-45-讲)
 - [SpringCloud Tutorial Videos](#springcloud-tutorial-videos)
+- [MySQL 是怎样运行的](#mysql-是怎样运行的)
 
 #### 支线任务
 - [Vim 实用技巧](#vim-实用技巧)
@@ -144,6 +147,11 @@ pin: true
 - 任务量：49 篇专栏文章
 - 状态：进行中
 
+### MySQL 是怎样运行的
+- 开始日期：2024-05-05
+- 任务量：389 页
+- 状态：进行中
+
 ## Java
 ### JavaWeb Tutorial Videos
 - 开始日期：2024-04-15
@@ -153,7 +161,7 @@ pin: true
 
 ### SpringCloud Tutorial Videos
 - 开始日期：2024-04-25
-- 任务量：150 个视频
+- 任务量：168 个视频
 - 状态：进行中
 
 ### Java 8 实战
@@ -162,6 +170,12 @@ pin: true
 - 状态：进行中
 
 ## 实用技术
+### Shell Tutorial Videos
+- 开始日期：2024-04-28
+- 任务量：55 个视频
+- 状态：已完成
+- 完成日期：2024-05-05
+
 ### Vim 实用技巧
 - 开始日期：2024-04-23
 - 任务量：363 页
