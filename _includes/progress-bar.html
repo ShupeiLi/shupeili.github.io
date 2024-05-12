@@ -1,6 +1,6 @@
 <div>
     <div>
-        <p> 力扣春招百题: </p>
+        <p> 力扣面试经典 150 题: </p>
         <div class="progress">
             <div class="mybar" id="lc-progress"></div>
         </div>
@@ -17,13 +17,6 @@
         <p> MySQL 45 讲: </p>
         <div class="progress">
             <div class="mybar" id="mysql-45-progress"></div>
-        </div>
-        <br/>
-    </div>
-    <div>
-        <p> SpringCloud Tutorial Videos: </p>
-        <div class="progress">
-            <div class="mybar" id="springcloud-video-progress"></div>
         </div>
         <br/>
     </div>
@@ -61,10 +54,10 @@ function setWidth(progressObj) {
     elem.innerHTML = percentage + '%';
 }
 
-/* 力扣春招百题 */
+/* 力扣面试经典 150 题 */
 const lc = {
-    cur: 80,
-    total: 100,
+    cur: 0,
+    total: 150,
     id: "lc-progress"
 };
 setWidth(lc);
@@ -85,17 +78,9 @@ const mysql = {
 };
 setWidth(mysql);
 
-/* SpringCloud */
-const springcloud = {
-    cur: 69,
-    total: 168,
-    id: "springcloud-video-progress"
-};
-setWidth(springcloud);
-
 /* MySQL 是怎样运行的 */
 const mysql_tutorial = {
-    cur: 11,
+    cur: 58,
     total: 389,
     id: "mysql-tutorial-progress"
 };
