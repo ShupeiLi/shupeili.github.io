@@ -1,12 +1,5 @@
 <div>
     <div>
-        <p> 力扣面试经典 150 题: </p>
-        <div class="progress">
-            <div class="mybar" id="lc-progress"></div>
-        </div>
-        <br/>
-    </div>
-    <div>
         <p> 小林图解操作系统: </p>
         <div class="progress">
             <div class="mybar" id="xiaolin-os-progress"></div>
@@ -54,17 +47,10 @@ function setWidth(progressObj) {
     elem.innerHTML = percentage + '%';
 }
 
-/* 力扣面试经典 150 题 */
-const lc = {
-    cur: 138,
-    total: 150,
-    id: "lc-progress"
-};
-setWidth(lc);
 
 /* 小林图解操作系统 */
 const xiaolin = {
-    cur: 7,
+    cur: 28,
     total: 743,
     id: "xiaolin-os-progress"
 };
@@ -80,7 +66,7 @@ setWidth(mysql);
 
 /* MySQL 是怎样运行的 */
 const mysql_tutorial = {
-    cur: 281,
+    cur: 310,
     total: 389,
     id: "mysql-tutorial-progress"
 };
