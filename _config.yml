@@ -19,12 +19,11 @@ title: Shupei 的笔记本 # the main title
 tagline: 欢迎来到我的个人网站！Welcome to my personal website! # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  记录下个人的学习进展。
   I think it is a good idea to record my learning progress.
 
 # Fill in the protocol & hostname for your site.
 # e.g. 'https://username.github.io', note that it does not end with a '/'.
-url: "https://shupeili.github.io"
+url: "https://shupeili.cn"
 
 github:
   username: ShupeiLi # change to your github username
@@ -64,7 +63,7 @@ social:
 #     light  - Use the light color scheme
 #     dark   - Use the dark color scheme
 #
-theme_mode: light # [light|dark]
+theme_mode: # [light|dark]
 
 # The CDN endpoint for images.
 # Notice that once it is assigned, the CDN url
