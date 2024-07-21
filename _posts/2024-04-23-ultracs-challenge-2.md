@@ -31,6 +31,7 @@ pin: true
   - [一刷 CSAPP](#一刷-csapp)
 - [数据库](#数据库)
   - [MySQL 是怎样运行的](#mysql-是怎样运行的)
+  - [小林图解 MySQL](#小林图解-mysql)
 - [Java](#java)
   - [JavaWeb Tutorial Videos](#javaweb-tutorial-videos)
   - [SpringCloud Tutorial Videos](#springcloud-tutorial-videos)
@@ -67,7 +68,7 @@ pin: true
 
 ## 进度追踪
 
-更新：2023-07-15
+更新：2023-07-22
 
 {% include progress-bar.html %}
 
@@ -75,15 +76,15 @@ pin: true
 **Java 业务实战项目 2**
 - [x]  05
 - [x]  10
-- [ ]  15
-- [ ]  20
+- [x]  15
+- [x]  20
 - [ ]  25
 - [ ]  30
 - [ ]  34
 
 **Java 知识复习**
 - Java
-  - [ ] Java 基础知识
+  - [x] Java 基础知识
   - [ ] Java 集合
   - [ ] Java 并发编程
   - [ ] Java IO
@@ -100,7 +101,7 @@ pin: true
 
 ### 当前任务列表
 #### 主线任务
-- [小林图解操作系统](#小林图解操作系统)
+- [小林图解 MySQL](#小林图解-mysql)
 - [Java 知识复习](#java-知识复习)
 - [Java 业务实战项目 2](#java-业务实战项目-2)
 - [力扣题目总结](#力扣题目总结)
@@ -139,8 +140,9 @@ pin: true
 
 ### 小林图解操作系统
 - 开始日期：2024-04-22
+- 完成日期：2024-07-19
 - 任务量：743 页
-- 状态：进行中
+- 状态：已完成
 
 ## 计算机网络
 ### 一刷计算机网络自顶向下
@@ -162,6 +164,11 @@ pin: true
 - 完成日期：2024-07-02
 - 任务量：389 页
 - 状态：已完成
+
+### 小林图解 MySQL
+- 开始日期：2024-07-20
+- 任务量：19 篇文章
+- 状态：进行中
 
 ## Java
 ### JavaWeb Tutorial Videos
