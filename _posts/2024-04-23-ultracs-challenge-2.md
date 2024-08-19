@@ -69,27 +69,17 @@ pin: true
 
 ## 进度追踪
 
-更新：2023-08-12
+更新：2023-08-19
 
 {% include progress-bar.html %}
 
 ### 项目里程碑
 **Java 知识复习**
-- Java
-  - [x] Java 基础知识
-  - [ ] Java 集合
-  - [ ] Java 并发编程
-  - [ ] Java IO
-  - [ ] JVM
-  - [ ] Java 新特性
-- [ ] Java 框架
-- 计算机网络
-  - [ ] 应用层
-  - [ ] 传输层
-  - [ ] 网络层
-  - [ ] 网络接口层
+- [x] Java 基础
+- [x] Java 框架
+- [ ] 计算机网络
 - [ ] 操作系统
-- [ ] MySQL
+- [x] MySQL
 - [ ] Redis
 
 ### 当前任务列表
