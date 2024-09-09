@@ -69,21 +69,21 @@ pin: true
 
 ## 进度追踪
 
-更新：2023-09-02
+更新：2023-09-09
 
 {% include progress-bar.html %}
 
 ### 项目里程碑
 **Java 知识总结**
 - [x] Java 基础
-- [ ] Java 集合
-- [ ] Java 并发
+- [x] Java 集合
+- [x] Java 并发
 - [ ] JVM
 - [ ] Java 常用框架
-- [ ] 计算机网络
-- [ ] 操作系统
-- [ ] MySQL
-- [ ] Redis
+- [x] 计算机网络
+- [x] 操作系统
+- [x] MySQL
+- [x] Redis
 
 ### 当前任务列表
 #### 主线任务
