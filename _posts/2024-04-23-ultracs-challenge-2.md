@@ -69,7 +69,7 @@ pin: true
 
 ## 进度追踪
 
-更新：2023-09-09
+更新：2023-09-17
 
 {% include progress-bar.html %}
 
@@ -78,7 +78,7 @@ pin: true
 - [x] Java 基础
 - [x] Java 集合
 - [x] Java 并发
-- [ ] JVM
+- [x] JVM
 - [ ] Java 常用框架
 - [x] 计算机网络
 - [x] 操作系统
