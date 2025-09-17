@@ -130,6 +130,8 @@ kramdown:
     block:
       line_numbers: true
       start_line: 1
+      mermaid:
+        enabled: true
 
 collections:
   tabs:

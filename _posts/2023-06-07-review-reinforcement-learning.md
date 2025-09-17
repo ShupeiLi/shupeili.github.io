@@ -2,7 +2,7 @@
 layout: post
 title: "Review: Reinforcement Learning"
 categories: machine_learning
-tags: machine_learning
+tags: [machine_learning, deep_learning]
 math: true
 
 ---

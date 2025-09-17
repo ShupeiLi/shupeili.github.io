@@ -2,7 +2,7 @@
 layout: post
 title: "Review: Introduction to Deep Learning"
 categories: machine_learning
-tags: machine_learning
+tags: [machine_learning, deep_learning]
 math: true
 pseudocode: true
 
